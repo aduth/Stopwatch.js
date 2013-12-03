@@ -1,7 +1,7 @@
 {
   "name": "Stopwatch.js",
   "version": "1.0.0",
-  "description": "A minimal cross-platform stopwatch interface",
+  "description": "A minimal cross-platform stopwatch",
   "author": {
     "name": "Andrew Duthie",
     "email": "andrew@andrewduthie.com",
