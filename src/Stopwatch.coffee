@@ -5,7 +5,7 @@ class Stopwatch
   previousElapsed = 0
 
   start: ->
-    @start = new Date().valueOf()
+    @startTime = new Date().valueOf()
     @running = true
 
     if !@started
@@ -26,7 +26,7 @@ class Stopwatch
     @started = false
 
   elapsed: ->
-    return new Date().valueOf() - @start + @previousElapsed
+    return new Date().valueOf() - @startTime + @previousElapsed
 
   onTick: (callback, resolution = 1000, startImmediate = false) ->
     throw new TypeError('Must provide a valid callback function') unless typeof callback is 'function'
@@ -44,13 +44,13 @@ class Stopwatch
       callback: callback
       immediate: startImmediate
       resolution: resolution
-      start: new Date().valueOf()
+      startTime: new Date().valueOf()
 
   _updateTickIntervals: ->
     intervalIds = []
 
     for intervalId, ticker of @tickIntervals
-      elapsed = new Date().valueOf() - ticker.start
+      elapsed = new Date().valueOf() - ticker.startTime
       nextTick = Math.abs ticker.resolution - (elapsed % resolution)
       startTicking = => @_startTicking ticker.callback, ticker.resolution, ticker.startImmediate
       setTimeout startTicking, nextTick

@@ -16,7 +16,7 @@
     previousElapsed = 0;
 
     Stopwatch.prototype.start = function() {
-      this.start = new Date().valueOf();
+      this.startTime = new Date().valueOf();
       this.running = true;
       if (!this.started) {
         this.started = true;
@@ -47,7 +47,7 @@
     };
 
     Stopwatch.prototype.elapsed = function() {
-      return new Date().valueOf() - this.start + this.previousElapsed;
+      return new Date().valueOf() - this.startTime + this.previousElapsed;
     };
 
     Stopwatch.prototype.onTick = function(callback, resolution, startImmediate) {
@@ -87,7 +87,7 @@
         callback: callback,
         immediate: startImmediate,
         resolution: resolution,
-        start: new Date().valueOf()
+        startTime: new Date().valueOf()
       };
     };
 
@@ -98,7 +98,7 @@
       _ref = this.tickIntervals;
       for (intervalId in _ref) {
         ticker = _ref[intervalId];
-        elapsed = new Date().valueOf() - ticker.start;
+        elapsed = new Date().valueOf() - ticker.startTime;
         nextTick = Math.abs(ticker.resolution - (elapsed % resolution));
         startTicking = function() {
           return _this._startTicking(ticker.callback, ticker.resolution, ticker.startImmediate);
