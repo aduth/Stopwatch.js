@@ -16,7 +16,7 @@ class Stopwatch
 
   pause: ->
     throw new Error('Timer must be running to pause or stop') unless @running and @started
-    clearInterval(interval) for interval in @tickIntervals
+    clearInterval(intervalId) for intervalId, callback of @tickIntervals
     @running = false
     @previousElapsed = @elapsed()
 

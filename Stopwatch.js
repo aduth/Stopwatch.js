@@ -27,14 +27,14 @@
     };
 
     Stopwatch.prototype.pause = function() {
-      var interval, _i, _len, _ref;
+      var callback, intervalId, _ref;
       if (!(this.running && this.started)) {
         throw new Error('Timer must be running to pause or stop');
       }
       _ref = this.tickIntervals;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        interval = _ref[_i];
-        clearInterval(interval);
+      for (intervalId in _ref) {
+        callback = _ref[intervalId];
+        clearInterval(intervalId);
       }
       this.running = false;
       return this.previousElapsed = this.elapsed();
