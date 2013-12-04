@@ -33,10 +33,16 @@ module.exports = (grunt) ->
       files: 'src/**/*.coffee'
       tasks: ['compile']
 
+    mocha:
+      index: ['test/index.html']
+
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-concat'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-mocha'
 
+  grunt.registerTask 'test', ['mocha']
   grunt.registerTask 'compile', ['coffee', 'concat', 'uglify']
   grunt.registerTask 'default', ['compile', 'watch']
+  grunt.registerTask 'release', ['compile', 'test']
