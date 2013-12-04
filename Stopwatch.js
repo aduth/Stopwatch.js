@@ -129,3 +129,7 @@
   }
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=Stopwatch.js.map
+*/

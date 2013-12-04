@@ -14,6 +14,8 @@ module.exports = (grunt) ->
         src: ['**/*.coffee']
         dest: ''
         ext: '.js'
+        options:
+          sourceMap: true
 
     concat:
       options:

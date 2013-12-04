@@ -108,3 +108,7 @@
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=test-Stopwatch.js.map
+*/
