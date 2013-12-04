@@ -32,8 +32,8 @@ class Stopwatch
     throw new TypeError('Must provide a valid callback function') unless typeof callback is 'function'
     throw Error('Timer must be running to add tick callback') unless @running and @started
 
-    if startImmediate
-      startTicking()
+    if startImmediate or @elapsed() is 0
+      @_startTicking callback, resolution, startImmediate
     else
       nextTick = resolution - (@elapsed() % resolution)
       startTicking = => @_startTicking callback, resolution, startImmediate

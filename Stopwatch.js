@@ -65,8 +65,8 @@
       if (!(this.running && this.started)) {
         throw Error('Timer must be running to add tick callback');
       }
-      if (startImmediate) {
-        return startTicking();
+      if (startImmediate || this.elapsed() === 0) {
+        return this._startTicking(callback, resolution, startImmediate);
       } else {
         nextTick = resolution - (this.elapsed() % resolution);
         startTicking = function() {
