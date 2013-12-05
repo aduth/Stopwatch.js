@@ -60,4 +60,4 @@ class Stopwatch
 @Stopwatch = Stopwatch
 module.exports = Stopwatch if module?.exports?
 if typeof define is 'function' and define.amd?
-    define 'Stopwatch', -> Stopwatch
+  define 'Stopwatch', -> Stopwatch
