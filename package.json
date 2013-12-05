@@ -7,6 +7,9 @@
     "email": "andrew@andrewduthie.com",
     "url": "http://www.andrewduthie.com"
   },
+  "scripts": {
+    "test": "grunt test"
+  },
   "license": "MIT",
   "devDependencies": {
     "grunt-contrib-clean": "~0.5.0",
