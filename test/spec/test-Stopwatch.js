@@ -11,8 +11,8 @@
     });
     describe('#start()', function() {
       var now;
-      now = new Date().valueOf();
-      beforeEach(function() {
+      now = beforeEach(function() {
+        now = new Date().valueOf();
         return timer.start();
       });
       it('should be properly initialized', function() {
@@ -67,7 +67,7 @@
         var _checkExpected;
         timer.start();
         _checkExpected = function() {
-          expect(timer.elapsed()).to.be.within(1000, 1050);
+          expect(timer.elapsed()).to.be.within(950, 1050);
           return done();
         };
         return setTimeout(_checkExpected, 1000);
@@ -80,7 +80,7 @@
       it('should tick once a second by default', function(done) {
         timer.start();
         return timer.onTick(function() {
-          expect(timer.elapsed()).to.be.within(1000, 1050);
+          expect(timer.elapsed()).to.be.within(950, 1050);
           timer.stop();
           return done();
         });

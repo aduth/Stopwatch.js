@@ -10,9 +10,10 @@ describe 'Stopwatch', ->
     timer = new Stopwatch()
 
   describe '#start()', ->
-    now = new Date().valueOf()
+    now =
 
     beforeEach ->
+      now = new Date().valueOf()
       timer.start()
 
     it 'should be properly initialized', ->
@@ -63,7 +64,7 @@ describe 'Stopwatch', ->
     it 'should keep track of time', (done) ->
       timer.start()
       _checkExpected = ->
-        expect(timer.elapsed()).to.be.within 1000, 1050
+        expect(timer.elapsed()).to.be.within 950, 1050
         done()
 
       setTimeout _checkExpected, 1000
@@ -76,7 +77,7 @@ describe 'Stopwatch', ->
       timer.start()
 
       timer.onTick ->
-        expect(timer.elapsed()).to.be.within 1000, 1050
+        expect(timer.elapsed()).to.be.within 950, 1050
         timer.stop()
         done()
 
