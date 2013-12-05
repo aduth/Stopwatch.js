@@ -47,6 +47,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-mocha'
 
   grunt.registerTask 'test', ['mocha']
+  grunt.registerTask 'dev', ['compile', 'watch']
   grunt.registerTask 'compile', ['coffee', 'concat', 'uglify']
-  grunt.registerTask 'default', ['compile', 'watch']
+  grunt.registerTask 'default', ['dev']
   grunt.registerTask 'release', ['compile', 'test']
