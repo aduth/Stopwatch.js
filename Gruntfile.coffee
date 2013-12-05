@@ -38,7 +38,9 @@ module.exports = (grunt) ->
       tasks: ['compile']
 
     mocha:
-      index: ['test/index.html']
+      index: ['test/index.html'],
+      options:
+        run: true
 
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-concat'

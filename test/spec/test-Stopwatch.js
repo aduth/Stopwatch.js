@@ -78,6 +78,7 @@
         return timer = new Stopwatch();
       });
       it('should tick once a second by default', function(done) {
+        this.timeout(5000);
         timer.start();
         return timer.onTick(function() {
           expect(timer.elapsed()).to.be.within(950, 1050);
@@ -87,7 +88,7 @@
       });
       return it('should allow multiple handlers', function(done) {
         var a, b, _checkDone;
-        this.timeout(3000);
+        this.timeout(5000);
         timer.start();
         a = b = false;
         _checkDone = function() {

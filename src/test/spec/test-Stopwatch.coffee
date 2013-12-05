@@ -74,6 +74,7 @@ describe 'Stopwatch', ->
       timer = new Stopwatch()
 
     it 'should tick once a second by default', (done) ->
+      this.timeout 5000
       timer.start()
 
       timer.onTick ->
@@ -82,7 +83,7 @@ describe 'Stopwatch', ->
         done()
 
     it 'should allow multiple handlers', (done) ->
-      this.timeout 3000
+      this.timeout 5000
       timer.start()
 
       a = b = false
