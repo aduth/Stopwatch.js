@@ -10,6 +10,12 @@
 
   <script src="js/mocha.js"></script>
   <script src="js/chai.js"></script>
+  <script>
+    var module = { exports: {} },
+      defined = [],
+      define = function(name) { defined.push(name); };
+    define.amd = true;
+  </script>
   <script src="../Stopwatch.js"></script>
   <script>
     mocha.setup('bdd');
