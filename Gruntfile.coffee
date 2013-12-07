@@ -14,8 +14,6 @@ module.exports = (grunt) ->
         src: ['**/*.coffee']
         dest: ''
         ext: '.js'
-        options:
-          sourceMap: true
 
     concat:
       options:
@@ -27,8 +25,6 @@ module.exports = (grunt) ->
     uglify:
       options:
         banner: '<%= meta.banner %>'
-        sourceMap: 'Stopwatch.min.js.map'
-        sourceMapIn: 'Stopwatch.js.map'
       dist:
         files:
           'Stopwatch.min.js': ['Stopwatch.js']
