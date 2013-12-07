@@ -104,3 +104,19 @@ describe 'Stopwatch', ->
       timer.onTick ->
           b = true
           _checkDone()
+
+    it 'should be self-adjusting', (done) ->
+      timer = new Stopwatch()
+      timer.start()
+      now = timer.startTime
+      adjusted = false
+
+      timer.onTick ->
+        if adjusted
+          expect(new Date().valueOf() - now).to.be.within 1550, 1650
+          timer.stop()
+          done()
+        else
+          timer.startTime = timer.startTime - 400
+          adjusted = true
+

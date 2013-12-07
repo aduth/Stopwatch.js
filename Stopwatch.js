@@ -7,7 +7,7 @@
 
     function Stopwatch() {}
 
-    Stopwatch.prototype.tickIntervals = {};
+    Stopwatch.prototype.tickTimeouts = {};
 
     Stopwatch.prototype.started = false;
 
@@ -22,19 +22,19 @@
         this.started = true;
         return this.previousElapsed = 0;
       } else {
-        return this._updateTickIntervals();
+        return this._updateTickTimeouts();
       }
     };
 
     Stopwatch.prototype.pause = function() {
-      var callback, intervalId, _ref;
+      var callback, timeoutId, _ref;
       if (!(this.running && this.started)) {
         throw new Error('Timer must be running to pause or stop');
       }
-      _ref = this.tickIntervals;
-      for (intervalId in _ref) {
-        callback = _ref[intervalId];
-        clearInterval(intervalId);
+      _ref = this.tickTimeouts;
+      for (timeoutId in _ref) {
+        callback = _ref[timeoutId];
+        clearTimeout(timeoutId);
       }
       this.running = false;
       return this.previousElapsed = this.elapsed();
@@ -42,7 +42,7 @@
 
     Stopwatch.prototype.stop = function() {
       this.pause();
-      this.tickIntervals = {};
+      this.tickTimeouts = {};
       return this.started = false;
     };
 
@@ -66,7 +66,7 @@
         throw Error('Timer must be running to add tick callback');
       }
       if (startImmediate || this.elapsed() === 0) {
-        return this._startTicking(callback, resolution, startImmediate);
+        return this._startTicking(callback, resolution, true);
       } else {
         nextTick = resolution - (this.elapsed() % resolution);
         startTicking = function() {
@@ -76,14 +76,16 @@
       }
     };
 
-    Stopwatch.prototype._startTicking = function(callback, resolution, startImmediate) {
+    Stopwatch.prototype._startTicking = function(callback, resolution, startImmediate, originalResolution) {
+      var timeoutId;
       if (resolution == null) {
         resolution = 1000;
       }
       if (startImmediate == null) {
         startImmediate = false;
       }
-      return this.tickIntervals[setInterval(callback, resolution)] = {
+      timeoutId = setTimeout(this._adjustingTick(callback, resolution, startImmediate, originalResolution), resolution);
+      return this.tickTimeouts[timeoutId] = {
         callback: callback,
         immediate: startImmediate,
         resolution: resolution,
@@ -91,13 +93,36 @@
       };
     };
 
-    Stopwatch.prototype._updateTickIntervals = function() {
-      var elapsed, intervalId, intervalIds, nextTick, startTicking, ticker, _ref, _results,
+    Stopwatch.prototype._adjustingTick = function(callback, resolution, startImmediate, originalResolution) {
+      var intendedResolution, started,
         _this = this;
-      intervalIds = [];
-      _ref = this.tickIntervals;
-      for (intervalId in _ref) {
-        ticker = _ref[intervalId];
+      if (resolution == null) {
+        resolution = 1000;
+      }
+      if (startImmediate == null) {
+        startImmediate = false;
+      }
+      started = new Date().valueOf();
+      intendedResolution = originalResolution || resolution;
+      return function() {
+        var adjust, elapsed, target;
+        callback(_this);
+        if (_this.running) {
+          elapsed = _this.elapsed();
+          target = _this._roundToNearest(elapsed, intendedResolution);
+          adjust = target - elapsed;
+          return _this._startTicking(callback, intendedResolution + adjust, startImmediate, intendedResolution);
+        }
+      };
+    };
+
+    Stopwatch.prototype._updateTickTimeouts = function() {
+      var elapsed, nextTick, startTicking, ticker, timeoutId, timeoutIds, _ref, _results,
+        _this = this;
+      timeoutIds = [];
+      _ref = this.tickTimeouts;
+      for (timeoutId in _ref) {
+        ticker = _ref[timeoutId];
         elapsed = new Date().valueOf() - ticker.startTime;
         nextTick = Math.abs(ticker.resolution - (elapsed % resolution));
         startTicking = function() {
@@ -106,10 +131,16 @@
         setTimeout(startTicking, nextTick);
       }
       _results = [];
-      for (intervalId in intervalIds) {
-        _results.push(delete this.tickIntervals[intervalId]);
+      for (timeoutId in timeoutIds) {
+        _results.push(delete this.tickTimeouts[timeoutId]);
       }
       return _results;
+    };
+
+    Stopwatch.prototype._roundToNearest = function(number, multiple) {
+      var half;
+      half = multiple / 2;
+      return number + half - (number + half) % multiple;
     };
 
     return Stopwatch;
@@ -129,7 +160,3 @@
   }
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=Stopwatch.js.map
-*/

@@ -1,5 +1,5 @@
 class Stopwatch
-  tickIntervals: {}
+  tickTimeouts: {}
   started: false
   running: false
   previousElapsed = 0
@@ -12,17 +12,17 @@ class Stopwatch
       @started = true
       @previousElapsed = 0
     else
-      @_updateTickIntervals()
+      @_updateTickTimeouts()
 
   pause: ->
     throw new Error('Timer must be running to pause or stop') unless @running and @started
-    clearInterval(intervalId) for intervalId, callback of @tickIntervals
+    clearTimeout(timeoutId) for timeoutId, callback of @tickTimeouts
     @running = false
     @previousElapsed = @elapsed()
 
   stop: ->
     @pause()
-    @tickIntervals = {}
+    @tickTimeouts = {}
     @started = false
 
   elapsed: ->
@@ -33,29 +33,46 @@ class Stopwatch
     throw Error('Timer must be running to add tick callback') unless @running and @started
 
     if startImmediate or @elapsed() is 0
-      @_startTicking callback, resolution, startImmediate
+      @_startTicking callback, resolution, true
     else
       nextTick = resolution - (@elapsed() % resolution)
       startTicking = => @_startTicking callback, resolution, startImmediate
       setTimeout startTicking, nextTick
 
-  _startTicking: (callback, resolution = 1000, startImmediate = false) ->
-    @tickIntervals[setInterval(callback, resolution)] =
+  _startTicking: (callback, resolution = 1000, startImmediate = false, originalResolution) ->
+    timeoutId = setTimeout(@_adjustingTick(callback, resolution, startImmediate, originalResolution), resolution)
+    @tickTimeouts[timeoutId] =
       callback: callback
       immediate: startImmediate
       resolution: resolution
       startTime: new Date().valueOf()
 
-  _updateTickIntervals: ->
-    intervalIds = []
+  _adjustingTick: (callback, resolution = 1000, startImmediate = false, originalResolution) ->
+    started = new Date().valueOf()
+    intendedResolution = originalResolution or resolution
 
-    for intervalId, ticker of @tickIntervals
+    =>
+      callback @
+      if @.running
+        elapsed = @elapsed()
+        target = @_roundToNearest elapsed, intendedResolution
+        adjust = target - elapsed
+        @_startTicking(callback, intendedResolution + adjust, startImmediate, intendedResolution)
+
+  _updateTickTimeouts: ->
+    timeoutIds = []
+
+    for timeoutId, ticker of @tickTimeouts
       elapsed = new Date().valueOf() - ticker.startTime
       nextTick = Math.abs ticker.resolution - (elapsed % resolution)
       startTicking = => @_startTicking ticker.callback, ticker.resolution, ticker.startImmediate
       setTimeout startTicking, nextTick
 
-    delete @tickIntervals[intervalId] for intervalId of intervalIds
+    delete @tickTimeouts[timeoutId] for timeoutId of timeoutIds
+
+  _roundToNearest: (number, multiple) ->
+    half = multiple / 2
+    number + half - (number + half) % multiple
 
 @Stopwatch = Stopwatch
 module.exports = Stopwatch if module?.exports?

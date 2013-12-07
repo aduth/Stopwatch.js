@@ -94,7 +94,7 @@
           return done();
         });
       });
-      return it('should allow multiple handlers', function(done) {
+      it('should allow multiple handlers', function(done) {
         var a, b, timer, _checkDone;
         this.timeout(5000);
         timer = new Stopwatch();
@@ -113,6 +113,23 @@
         return timer.onTick(function() {
           b = true;
           return _checkDone();
+        });
+      });
+      return it('should be self-adjusting', function(done) {
+        var adjusted, now, timer;
+        timer = new Stopwatch();
+        timer.start();
+        now = timer.startTime;
+        adjusted = false;
+        return timer.onTick(function() {
+          if (adjusted) {
+            expect(new Date().valueOf() - now).to.be.within(1550, 1650);
+            timer.stop();
+            return done();
+          } else {
+            timer.startTime = timer.startTime - 400;
+            return adjusted = true;
+          }
         });
       });
     });
