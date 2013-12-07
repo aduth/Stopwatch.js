@@ -1,17 +1,14 @@
 (function() {
   describe('Stopwatch', function() {
-    var timer;
     it('should be cross-platform', function() {
       expect(new Stopwatch).to.be.instanceOf(Stopwatch);
       expect(new module.exports).to.be.instanceOf(Stopwatch);
       return expect(defined).to.contain('Stopwatch');
     });
-    timer = beforeEach(function() {
-      return timer = new Stopwatch();
-    });
     describe('#start()', function() {
-      var now;
-      now = beforeEach(function() {
+      var now, timer;
+      now = timer = beforeEach(function() {
+        timer = new Stopwatch();
         now = new Date().valueOf();
         return timer.start();
       });
@@ -26,6 +23,10 @@
       });
     });
     describe('#pause()', function() {
+      var timer;
+      timer = beforeEach(function() {
+        return timer = new Stopwatch();
+      });
       it('should not pause if not running', function() {
         return expect(timer.pause).to["throw"](Error);
       });
@@ -37,20 +38,27 @@
     });
     describe('#stop()', function() {
       it('should not stop if not running', function() {
+        var timer;
+        timer = new Stopwatch();
         return expect(timer.stop).to["throw"](Error);
       });
       it('should no longer be running', function() {
+        var timer;
+        timer = new Stopwatch();
         timer.start();
         timer.stop();
         return expect(timer.running).to.be["false"];
       });
       it('should no longer be started', function() {
+        var timer;
+        timer = new Stopwatch();
         timer.start();
         timer.stop();
         return expect(timer.started).to.be["false"];
       });
       return it('should re-initialize when re-started', function(done) {
-        var _checkExpected;
+        var timer, _checkExpected;
+        timer = new Stopwatch();
         timer.start();
         _checkExpected = function() {
           timer.stop();
@@ -64,7 +72,8 @@
     });
     describe('#elapsed()', function() {
       return it('should keep track of time', function(done) {
-        var _checkExpected;
+        var timer, _checkExpected;
+        timer = new Stopwatch();
         timer.start();
         _checkExpected = function() {
           expect(timer.elapsed()).to.be.within(950, 1050);
@@ -74,11 +83,10 @@
       });
     });
     return describe('#onTick()', function() {
-      beforeEach(function() {
-        return timer = new Stopwatch();
-      });
       it('should tick once a second by default', function(done) {
+        var timer;
         this.timeout(5000);
+        timer = new Stopwatch();
         timer.start();
         return timer.onTick(function() {
           expect(timer.elapsed()).to.be.within(950, 1050);
@@ -87,8 +95,9 @@
         });
       });
       return it('should allow multiple handlers', function(done) {
-        var a, b, _checkDone;
+        var a, b, timer, _checkDone;
         this.timeout(5000);
+        timer = new Stopwatch();
         timer.start();
         a = b = false;
         _checkDone = function() {
@@ -110,7 +119,3 @@
   });
 
 }).call(this);
-
-/*
-//@ sourceMappingURL=test-Stopwatch.js.map
-*/

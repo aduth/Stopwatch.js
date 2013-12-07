@@ -4,15 +4,12 @@ describe 'Stopwatch', ->
     expect(new module.exports).to.be.instanceOf Stopwatch
     expect(defined).to.contain 'Stopwatch'
 
-  timer =
-
-  beforeEach ->
-    timer = new Stopwatch()
-
   describe '#start()', ->
     now =
+    timer =
 
     beforeEach ->
+      timer = new Stopwatch()
       now = new Date().valueOf()
       timer.start()
 
@@ -26,6 +23,11 @@ describe 'Stopwatch', ->
       expect(Math.abs(timer.startTime - now)).to.be.within 0, 50
 
   describe '#pause()', ->
+    timer =
+
+    beforeEach ->
+      timer = new Stopwatch()
+
     it 'should not pause if not running', ->
       expect(timer.pause).to.throw Error
 
@@ -36,19 +38,23 @@ describe 'Stopwatch', ->
 
   describe '#stop()', ->
     it 'should not stop if not running', ->
+      timer = new Stopwatch()
       expect(timer.stop).to.throw(Error)
 
     it 'should no longer be running', ->
+      timer = new Stopwatch()
       timer.start()
       timer.stop()
       expect(timer.running).to.be.false
 
     it 'should no longer be started', ->
+      timer = new Stopwatch()
       timer.start()
       timer.stop()
       expect(timer.started).to.be.false
 
     it 'should re-initialize when re-started', (done) ->
+      timer = new Stopwatch()
       timer.start()
       _checkExpected = ->
         timer.stop()
@@ -62,6 +68,7 @@ describe 'Stopwatch', ->
 
   describe '#elapsed()', ->
     it 'should keep track of time', (done) ->
+      timer = new Stopwatch()
       timer.start()
       _checkExpected = ->
         expect(timer.elapsed()).to.be.within 950, 1050
@@ -70,11 +77,9 @@ describe 'Stopwatch', ->
       setTimeout _checkExpected, 1000
 
   describe '#onTick()', ->
-    beforeEach ->
-      timer = new Stopwatch()
-
     it 'should tick once a second by default', (done) ->
       this.timeout 5000
+      timer = new Stopwatch()
       timer.start()
 
       timer.onTick ->
@@ -84,6 +89,7 @@ describe 'Stopwatch', ->
 
     it 'should allow multiple handlers', (done) ->
       this.timeout 5000
+      timer = new Stopwatch()
       timer.start()
 
       a = b = false
