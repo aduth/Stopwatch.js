@@ -24,5 +24,10 @@
     var expect = chai.expect;
   </script>
   <script src="spec/test-Stopwatch.js"></script>
+  <script>
+  if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+    mocha.run();
+  }
+  </script>
 </body>
 </html>
