@@ -19,7 +19,7 @@ module.exports = (grunt) ->
       options:
         banner: '<%= meta.banner %>'
       dist:
-        src: ['Stopwatch.js']
+        src: ['src/correctingInterval/correctingInterval.js', 'Stopwatch.js']
         dest: 'Stopwatch.js'
 
     uglify:

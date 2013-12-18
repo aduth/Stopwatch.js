@@ -78,7 +78,6 @@ describe 'Stopwatch', ->
 
   describe '#onTick()', ->
     it 'should tick once a second by default', (done) ->
-      this.timeout 5000
       timer = new Stopwatch()
       timer.start()
 
@@ -88,35 +87,20 @@ describe 'Stopwatch', ->
         done()
 
     it 'should allow multiple handlers', (done) ->
-      this.timeout 5000
       timer = new Stopwatch()
-      timer.start()
 
       a = b = false
       _checkDone = ->
-          if a && b && timer.running
-            timer.stop()
-            done()
+        if a && b && timer.running
+          timer.stop()
+          done()
 
-      timer.onTick ->
+      timer.onTick =>
           a = true
           _checkDone()
-      timer.onTick ->
+      timer.onTick =>
           b = true
           _checkDone()
 
-    it 'should be self-adjusting', (done) ->
-      timer = new Stopwatch()
       timer.start()
-      now = timer.startTime
-      adjusted = false
-
-      timer.onTick ->
-        if adjusted
-          expect(new Date().valueOf() - now).to.be.within 1550, 1650
-          timer.stop()
-          done()
-        else
-          timer.startTime = timer.startTime - 400
-          adjusted = true
 

@@ -1,0 +1,3 @@
+[submodule "src/correctingInterval"]
+	path = src/correctingInterval
+	url = https://github.com/aduth/correctingInterval.git

@@ -85,7 +85,6 @@
     return describe('#onTick()', function() {
       it('should tick once a second by default', function(done) {
         var timer;
-        this.timeout(5000);
         timer = new Stopwatch();
         timer.start();
         return timer.onTick(function() {
@@ -94,11 +93,10 @@
           return done();
         });
       });
-      it('should allow multiple handlers', function(done) {
-        var a, b, timer, _checkDone;
-        this.timeout(5000);
+      return it('should allow multiple handlers', function(done) {
+        var a, b, timer, _checkDone,
+          _this = this;
         timer = new Stopwatch();
-        timer.start();
         a = b = false;
         _checkDone = function() {
           if (a && b && timer.running) {
@@ -110,27 +108,11 @@
           a = true;
           return _checkDone();
         });
-        return timer.onTick(function() {
+        timer.onTick(function() {
           b = true;
           return _checkDone();
         });
-      });
-      return it('should be self-adjusting', function(done) {
-        var adjusted, now, timer;
-        timer = new Stopwatch();
-        timer.start();
-        now = timer.startTime;
-        adjusted = false;
-        return timer.onTick(function() {
-          if (adjusted) {
-            expect(new Date().valueOf() - now).to.be.within(1550, 1650);
-            timer.stop();
-            return done();
-          } else {
-            timer.startTime = timer.startTime - 400;
-            return adjusted = true;
-          }
-        });
+        return timer.start();
       });
     });
   });
