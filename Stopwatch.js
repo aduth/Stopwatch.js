@@ -149,24 +149,12 @@
 
     Stopwatch.prototype._startTicking = function(callback, resolution, startImmediate) {
       var tick;
-      if (resolution == null) {
-        resolution = 1000;
-      }
-      if (startImmediate == null) {
-        startImmediate = false;
-      }
       tick = this._setTick(callback, resolution, startImmediate);
       return tick.intervalId = setCorrectingInterval(callback, resolution);
     };
 
     Stopwatch.prototype._setTick = function(callback, resolution, startImmediate) {
       var tick;
-      if (resolution == null) {
-        resolution = 1000;
-      }
-      if (startImmediate == null) {
-        startImmediate = false;
-      }
       tick = {
         callback: callback,
         immediate: startImmediate,

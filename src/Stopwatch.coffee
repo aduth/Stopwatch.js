@@ -42,11 +42,11 @@ class Stopwatch
       startTicking = => @_startTicking callback, resolution, startImmediate
       setTimeout startTicking, nextTick
 
-  _startTicking: (callback, resolution = 1000, startImmediate = false) ->
+  _startTicking: (callback, resolution, startImmediate) ->
     tick = @_setTick callback, resolution, startImmediate
     tick.intervalId = setCorrectingInterval callback, resolution
 
-  _setTick: (callback, resolution = 1000, startImmediate = false) ->
+  _setTick: (callback, resolution, startImmediate) ->
     tick =
       callback: callback
       immediate: startImmediate
