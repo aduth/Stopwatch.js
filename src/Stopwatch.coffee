@@ -1,6 +1,6 @@
 class Stopwatch
   constructor: ->
-    @tickIntervals = {}
+    @tickIntervals = []
     @started = false
     @running = false
     @previousElapsed = 0
@@ -17,13 +17,13 @@ class Stopwatch
 
   pause: ->
     throw new Error('Timer must be running to pause or stop') unless @running and @started
-    clearCorrectingInterval(+intervalId) for intervalId, callback of @tickIntervals
+    clearCorrectingInterval(+intervalId) for tick in @tickIntervals when tick.intervalId?
     @running = false
     @previousElapsed = @elapsed()
 
   stop: ->
     @pause()
-    @tickIntervals = {}
+    @tickIntervals = []
     @started = false
 
   elapsed: ->
@@ -34,7 +34,9 @@ class Stopwatch
   onTick: (callback, resolution = 1000, startImmediate = false) ->
     throw new TypeError('Must provide a valid callback function') unless typeof callback is 'function'
 
-    if startImmediate or @elapsed() is 0
+    unless @running
+      @_setTick callback, resolution, true
+    else if startImmediate or @elapsed() is 0
       @_startTicking callback, resolution, true
     else
       nextTick = resolution - (@elapsed() % resolution)
@@ -42,12 +44,17 @@ class Stopwatch
       setTimeout startTicking, nextTick
 
   _startTicking: (callback, resolution = 1000, startImmediate = false) ->
-    intervalId = setCorrectingInterval callback, resolution
-    @tickIntervals[intervalId] =
+    tick = @_setTick callback, resolution, startImmediate
+    tick.intervalId = setCorrectingInterval callback, resolution
+
+  _setTick: (callback, resolution = 1000, startImmediate = false) ->
+    tick =
       callback: callback
       immediate: startImmediate
       resolution: resolution
       startTime: new Date().valueOf()
+
+    @tickIntervals.push tick
 
   _updateTickIntervals: ->
     intervalIds = []

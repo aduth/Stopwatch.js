@@ -86,6 +86,14 @@ describe 'Stopwatch', ->
         timer.stop()
         done()
 
+    it 'should only tick if timer is running', (done) ->
+      timer = new Stopwatch()
+
+      _err = -> throw new Error 'tick occured when not started'
+
+      timer.onTick _err, 500
+      setTimeout done, 1000
+
     it 'should allow multiple handlers', (done) ->
       timer = new Stopwatch()
 

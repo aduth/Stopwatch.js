@@ -93,6 +93,15 @@
           return done();
         });
       });
+      it('should only tick if timer is running', function(done) {
+        var timer, _err;
+        timer = new Stopwatch();
+        _err = function() {
+          throw new Error('tick occured when not started');
+        };
+        timer.onTick(_err, 500);
+        return setTimeout(done, 1000);
+      });
       return it('should allow multiple handlers', function(done) {
         var a, b, timer, _checkDone,
           _this = this;

@@ -77,7 +77,7 @@
 
   Stopwatch = (function() {
     function Stopwatch() {
-      this.tickIntervals = {};
+      this.tickIntervals = [];
       this.started = false;
       this.running = false;
       this.previousElapsed = 0;
@@ -95,14 +95,16 @@
     };
 
     Stopwatch.prototype.pause = function() {
-      var callback, intervalId, _ref;
+      var tick, _i, _len, _ref;
       if (!(this.running && this.started)) {
         throw new Error('Timer must be running to pause or stop');
       }
       _ref = this.tickIntervals;
-      for (intervalId in _ref) {
-        callback = _ref[intervalId];
-        clearCorrectingInterval(+intervalId);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tick = _ref[_i];
+        if (tick.intervalId != null) {
+          clearCorrectingInterval(+intervalId);
+        }
       }
       this.running = false;
       return this.previousElapsed = this.elapsed();
@@ -110,7 +112,7 @@
 
     Stopwatch.prototype.stop = function() {
       this.pause();
-      this.tickIntervals = {};
+      this.tickIntervals = [];
       return this.started = false;
     };
 
@@ -133,7 +135,9 @@
       if (typeof callback !== 'function') {
         throw new TypeError('Must provide a valid callback function');
       }
-      if (startImmediate || this.elapsed() === 0) {
+      if (!this.running) {
+        return this._setTick(callback, resolution, true);
+      } else if (startImmediate || this.elapsed() === 0) {
         return this._startTicking(callback, resolution, true);
       } else {
         nextTick = resolution - (this.elapsed() % resolution);
@@ -145,20 +149,32 @@
     };
 
     Stopwatch.prototype._startTicking = function(callback, resolution, startImmediate) {
-      var intervalId;
+      var tick;
       if (resolution == null) {
         resolution = 1000;
       }
       if (startImmediate == null) {
         startImmediate = false;
       }
-      intervalId = setCorrectingInterval(callback, resolution);
-      return this.tickIntervals[intervalId] = {
+      tick = this._setTick(callback, resolution, startImmediate);
+      return tick.intervalId = setCorrectingInterval(callback, resolution);
+    };
+
+    Stopwatch.prototype._setTick = function(callback, resolution, startImmediate) {
+      var tick;
+      if (resolution == null) {
+        resolution = 1000;
+      }
+      if (startImmediate == null) {
+        startImmediate = false;
+      }
+      tick = {
         callback: callback,
         immediate: startImmediate,
         resolution: resolution,
         startTime: new Date().valueOf()
       };
+      return this.tickIntervals.push(tick);
     };
 
     Stopwatch.prototype._updateTickIntervals = function() {
