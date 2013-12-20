@@ -57,7 +57,7 @@ module.exports = function(type){
 }); // module: browser/debug.js
 
 require.register("browser/diff.js", function(module, exports, require){
-/* See license.txt for terms of usage */
+/* See LICENSE file for terms of use */
 
 /*
  * Text diff implementation.
@@ -74,6 +74,7 @@ require.register("browser/diff.js", function(module, exports, require){
  * http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.4.6927
  */
 var JsDiff = (function() {
+  /*jshint maxparams: 5*/
   function clonePath(path) {
     return { newPos: path.newPos, components: path.components.slice(0) };
   }
@@ -88,22 +89,21 @@ var JsDiff = (function() {
   }
   function escapeHTML(s) {
     var n = s;
-    n = n.replace(/&/g, "&amp;");
-    n = n.replace(/</g, "&lt;");
-    n = n.replace(/>/g, "&gt;");
-    n = n.replace(/"/g, "&quot;");
+    n = n.replace(/&/g, '&amp;');
+    n = n.replace(/</g, '&lt;');
+    n = n.replace(/>/g, '&gt;');
+    n = n.replace(/"/g, '&quot;');
 
     return n;
   }
 
-
-  var fbDiff = function(ignoreWhitespace) {
+  var Diff = function(ignoreWhitespace) {
     this.ignoreWhitespace = ignoreWhitespace;
   };
-  fbDiff.prototype = {
+  Diff.prototype = {
       diff: function(oldString, newString) {
         // Handle the identity case (this is due to unrolling editLength == 0
-        if (newString == oldString) {
+        if (newString === oldString) {
           return [{ value: newString }];
         }
         if (!newString) {
@@ -198,7 +198,7 @@ var JsDiff = (function() {
         if (this.ignoreWhitespace && !reWhitespace.test(left) && !reWhitespace.test(right)) {
           return true;
         } else {
-          return left == right;
+          return left === right;
         }
       },
       join: function(left, right) {
@@ -209,26 +209,30 @@ var JsDiff = (function() {
       }
   };
 
-  var CharDiff = new fbDiff();
+  var CharDiff = new Diff();
 
-  var WordDiff = new fbDiff(true);
-  WordDiff.tokenize = function(value) {
+  var WordDiff = new Diff(true);
+  var WordWithSpaceDiff = new Diff();
+  WordDiff.tokenize = WordWithSpaceDiff.tokenize = function(value) {
     return removeEmpty(value.split(/(\s+|\b)/));
   };
 
-  var CssDiff = new fbDiff(true);
+  var CssDiff = new Diff(true);
   CssDiff.tokenize = function(value) {
     return removeEmpty(value.split(/([{}:;,]|\s+)/));
   };
 
-  var LineDiff = new fbDiff();
+  var LineDiff = new Diff();
   LineDiff.tokenize = function(value) {
     return value.split(/^/m);
   };
 
   return {
+    Diff: Diff,
+
     diffChars: function(oldStr, newStr) { return CharDiff.diff(oldStr, newStr); },
     diffWords: function(oldStr, newStr) { return WordDiff.diff(oldStr, newStr); },
+    diffWordsWithSpace: function(oldStr, newStr) { return WordWithSpaceDiff.diff(oldStr, newStr); },
     diffLines: function(oldStr, newStr) { return LineDiff.diff(oldStr, newStr); },
 
     diffCss: function(oldStr, newStr) { return CssDiff.diff(oldStr, newStr); },
@@ -236,16 +240,16 @@ var JsDiff = (function() {
     createPatch: function(fileName, oldStr, newStr, oldHeader, newHeader) {
       var ret = [];
 
-      ret.push("Index: " + fileName);
-      ret.push("===================================================================");
-      ret.push("--- " + fileName + (typeof oldHeader === "undefined" ? "" : "\t" + oldHeader));
-      ret.push("+++ " + fileName + (typeof newHeader === "undefined" ? "" : "\t" + newHeader));
+      ret.push('Index: ' + fileName);
+      ret.push('===================================================================');
+      ret.push('--- ' + fileName + (typeof oldHeader === 'undefined' ? '' : '\t' + oldHeader));
+      ret.push('+++ ' + fileName + (typeof newHeader === 'undefined' ? '' : '\t' + newHeader));
 
       var diff = LineDiff.diff(oldStr, newStr);
       if (!diff[diff.length-1].value) {
         diff.pop();   // Remove trailing newline add
       }
-      diff.push({value: "", lines: []});   // Append an empty value to make cleanup easier
+      diff.push({value: '', lines: []});   // Append an empty value to make cleanup easier
 
       function contextLines(lines) {
         return lines.map(function(entry) { return ' ' + entry; });
@@ -253,7 +257,7 @@ var JsDiff = (function() {
       function eofNL(curRange, i, current) {
         var last = diff[diff.length-2],
             isLast = i === diff.length-2,
-            isLastOfType = i === diff.length-3 && (current.added === !last.added || current.removed === !last.removed);
+            isLastOfType = i === diff.length-3 && (current.added !== last.added || current.removed !== last.removed);
 
         // Figure out if this is the last line for the given file and missing NL
         if (!/\n$/.test(current.value) && (isLast || isLastOfType)) {
@@ -265,7 +269,7 @@ var JsDiff = (function() {
           oldLine = 1, newLine = 1;
       for (var i = 0; i < diff.length; i++) {
         var current = diff[i],
-            lines = current.lines || current.value.replace(/\n$/, "").split("\n");
+            lines = current.lines || current.value.replace(/\n$/, '').split('\n');
         current.lines = lines;
 
         if (current.added || current.removed) {
@@ -280,7 +284,7 @@ var JsDiff = (function() {
               newRangeStart -= curRange.length;
             }
           }
-          curRange.push.apply(curRange, lines.map(function(entry) { return (current.added?"+":"-") + entry; }));
+          curRange.push.apply(curRange, lines.map(function(entry) { return (current.added?'+':'-') + entry; }));
           eofNL(curRange, i, current);
 
           if (current.added) {
@@ -298,9 +302,9 @@ var JsDiff = (function() {
               // end the range and output
               var contextSize = Math.min(lines.length, 4);
               ret.push(
-                  "@@ -" + oldRangeStart + "," + (oldLine-oldRangeStart+contextSize)
-                  + " +" + newRangeStart + "," + (newLine-newRangeStart+contextSize)
-                  + " @@");
+                  '@@ -' + oldRangeStart + ',' + (oldLine-oldRangeStart+contextSize)
+                  + ' +' + newRangeStart + ',' + (newLine-newRangeStart+contextSize)
+                  + ' @@');
               ret.push.apply(ret, curRange);
               ret.push.apply(ret, contextLines(lines.slice(0, contextSize)));
               if (lines.length <= 4) {
@@ -318,30 +322,93 @@ var JsDiff = (function() {
       return ret.join('\n') + '\n';
     },
 
+    applyPatch: function(oldStr, uniDiff) {
+      var diffstr = uniDiff.split('\n');
+      var diff = [];
+      var remEOFNL = false,
+          addEOFNL = false;
+
+      for (var i = (diffstr[0][0]==='I'?4:0); i < diffstr.length; i++) {
+        if(diffstr[i][0] === '@') {
+          var meh = diffstr[i].split(/@@ -(\d+),(\d+) \+(\d+),(\d+) @@/);
+          diff.unshift({
+            start:meh[3],
+            oldlength:meh[2],
+            oldlines:[],
+            newlength:meh[4],
+            newlines:[]
+          });
+        } else if(diffstr[i][0] === '+') {
+          diff[0].newlines.push(diffstr[i].substr(1));
+        } else if(diffstr[i][0] === '-') {
+          diff[0].oldlines.push(diffstr[i].substr(1));
+        } else if(diffstr[i][0] === ' ') {
+          diff[0].newlines.push(diffstr[i].substr(1));
+          diff[0].oldlines.push(diffstr[i].substr(1));
+        } else if(diffstr[i][0] === '\\') {
+          if (diffstr[i-1][0] === '+') {
+            remEOFNL = true;
+          } else if(diffstr[i-1][0] === '-') {
+            addEOFNL = true;
+          }
+        }
+      }
+
+      var str = oldStr.split('\n');
+      for (var i = diff.length - 1; i >= 0; i--) {
+        var d = diff[i];
+        for (var j = 0; j < d.oldlength; j++) {
+          if(str[d.start-1+j] !== d.oldlines[j]) {
+            return false;
+          }
+        }
+        Array.prototype.splice.apply(str,[d.start-1,+d.oldlength].concat(d.newlines));
+      }
+
+      if (remEOFNL) {
+        while (!str[str.length-1]) {
+          str.pop();
+        }
+      } else if (addEOFNL) {
+        str.push('');
+      }
+      return str.join('\n');
+    },
+
     convertChangesToXML: function(changes){
       var ret = [];
       for ( var i = 0; i < changes.length; i++) {
         var change = changes[i];
         if (change.added) {
-          ret.push("<ins>");
+          ret.push('<ins>');
         } else if (change.removed) {
-          ret.push("<del>");
+          ret.push('<del>');
         }
 
         ret.push(escapeHTML(change.value));
 
         if (change.added) {
-          ret.push("</ins>");
+          ret.push('</ins>');
         } else if (change.removed) {
-          ret.push("</del>");
+          ret.push('</del>');
         }
       }
-      return ret.join("");
+      return ret.join('');
+    },
+
+    // See: http://code.google.com/p/google-diff-match-patch/wiki/API
+    convertChangesToDMP: function(changes){
+      var ret = [], change;
+      for ( var i = 0; i < changes.length; i++) {
+        change = changes[i];
+        ret.push([(change.added ? 1 : change.removed ? -1 : 0), change.value]);
+      }
+      return ret;
     }
   };
 })();
 
-if (typeof module !== "undefined") {
+if (typeof module !== 'undefined') {
     module.exports = JsDiff;
 }
 
@@ -911,6 +978,7 @@ module.exports = function(suite){
     context.describe.only = function(title, fn){
       var suite = context.describe(title, fn);
       mocha.grep(suite.fullTitle());
+      return suite;
     };
 
     /**
@@ -935,6 +1003,7 @@ module.exports = function(suite){
       var test = context.it(title, fn);
       var reString = '^' + utils.escapeRegexp(test.fullTitle()) + '$';
       mocha.grep(new RegExp(reString));
+      return test;
     };
 
     /**
@@ -1365,7 +1434,8 @@ function Mocha(options) {
   this.ui(options.ui);
   this.bail(options.bail);
   this.reporter(options.reporter);
-  if (typeof options.timeout === 'number') this.timeout(options.timeout);
+  if (null != options.timeout) this.timeout(options.timeout);
+  this.useColors(options.useColors)
   if (options.slow) this.slow(options.slow);
 }
 
@@ -1406,12 +1476,15 @@ Mocha.prototype.reporter = function(reporter){
     this._reporter = reporter;
   } else {
     reporter = reporter || 'dot';
-    try {
-      this._reporter = require('./reporters/' + reporter);
-    } catch (err) {
-      this._reporter = require(reporter);
-    }
-    if (!this._reporter) throw new Error('invalid reporter "' + reporter + '"');
+    var _reporter;
+    try { _reporter = require('./reporters/' + reporter); } catch (err) {};
+    if (!_reporter) try { _reporter = require(reporter); } catch (err) {};
+    if (!_reporter && reporter === 'teamcity')
+      console.warn('The Teamcity reporter was moved to a package named ' +
+        'mocha-teamcity-reporter ' +
+        '(https://npmjs.org/package/mocha-teamcity-reporter).');
+    if (!_reporter) throw new Error('invalid reporter "' + reporter + '"');
+    this._reporter = _reporter;
   }
   return this;
 };
@@ -1426,6 +1499,7 @@ Mocha.prototype.reporter = function(reporter){
 Mocha.prototype.ui = function(name){
   name = name || 'bdd';
   this._ui = exports.interfaces[name];
+  if (!this._ui) try { this._ui = require(name); } catch (err) {};
   if (!this._ui) throw new Error('invalid interface "' + name + '"');
   this._ui = this._ui(this.suite);
   return this;
@@ -1552,6 +1626,36 @@ Mocha.prototype.globals = function(globals){
 };
 
 /**
+ * Emit color output.
+ *
+ * @param {Boolean} colors
+ * @return {Mocha}
+ * @api public
+ */
+
+Mocha.prototype.useColors = function(colors){
+  this.options.useColors = arguments.length && colors != undefined
+    ? colors
+    : true;
+  return this;
+};
+
+/**
+ * Use inline diffs rather than +/-.
+ *
+ * @param {Boolean} inlineDiffs
+ * @return {Mocha}
+ * @api public
+ */
+
+Mocha.prototype.useInlineDiffs = function(inlineDiffs) {
+  this.options.useInlineDiffs = arguments.length && inlineDiffs != undefined
+  ? inlineDiffs
+  : false;
+  return this;
+};
+
+/**
  * Set the timeout in milliseconds.
  *
  * @param {Number} timeout
@@ -1608,6 +1712,8 @@ Mocha.prototype.run = function(fn){
   if (options.grep) runner.grep(options.grep, options.invert);
   if (options.globals) runner.globals(options.globals);
   if (options.growl) this._growl(runner, reporter);
+  exports.reporters.Base.useColors = options.useColors;
+  exports.reporters.Base.inlineDiffs = options.useInlineDiffs;
   return runner.run(fn);
 };
 
@@ -1640,9 +1746,7 @@ var y = d * 365.25;
 module.exports = function(val, options){
   options = options || {};
   if ('string' == typeof val) return parse(val);
-  return options.long
-    ? long(val)
-    : short(val);
+  return options.long ? longFormat(val) : shortFormat(val);
 };
 
 /**
@@ -1692,7 +1796,7 @@ function parse(str) {
  * @api private
  */
 
-function short(ms) {
+function shortFormat(ms) {
   if (ms >= d) return Math.round(ms / d) + 'd';
   if (ms >= h) return Math.round(ms / h) + 'h';
   if (ms >= m) return Math.round(ms / m) + 'm';
@@ -1708,7 +1812,7 @@ function short(ms) {
  * @api private
  */
 
-function long(ms) {
+function longFormat(ms) {
   return plural(ms, d, 'day')
     || plural(ms, h, 'hour')
     || plural(ms, m, 'minute')
@@ -1764,7 +1868,13 @@ exports = module.exports = Base;
  * Enable coloring by default.
  */
 
-exports.useColors = isatty;
+exports.useColors = isatty || (process.env.MOCHA_COLORS !== undefined);
+
+/**
+ * Inline diffs instead of +/-
+ */
+
+exports.inlineDiffs = false;
 
 /**
  * Default color map.
@@ -1846,24 +1956,28 @@ exports.window = {
 
 exports.cursor = {
   hide: function(){
-    process.stdout.write('\u001b[?25l');
+    isatty && process.stdout.write('\u001b[?25l');
   },
 
   show: function(){
-    process.stdout.write('\u001b[?25h');
+    isatty && process.stdout.write('\u001b[?25h');
   },
 
   deleteLine: function(){
-    process.stdout.write('\u001b[2K');
+    isatty && process.stdout.write('\u001b[2K');
   },
 
   beginningOfLine: function(){
-    process.stdout.write('\u001b[0G');
+    isatty && process.stdout.write('\u001b[0G');
   },
 
   CR: function(){
-    exports.cursor.deleteLine();
-    exports.cursor.beginningOfLine();
+    if (isatty) {
+      exports.cursor.deleteLine();
+      exports.cursor.beginningOfLine();
+    } else {
+      process.stdout.write('\n');
+    }
   }
 };
 
@@ -1906,31 +2020,15 @@ exports.list = function(failures){
 
     // actual / expected diff
     if ('string' == typeof actual && 'string' == typeof expected) {
-      msg = errorDiff(err, 'Words', escape);
+      fmt = color('error title', '  %s) %s:\n%s') + color('error stack', '\n%s\n');
+      var match = message.match(/^([^:]+): expected/);
+      msg = match ? '\n      ' + color('error message', match[1]) : '';
 
-      // linenos
-      var lines = msg.split('\n');
-      if (lines.length > 4) {
-        var width = String(lines.length).length;
-        msg = lines.map(function(str, i){
-          return pad(++i, width) + ' |' + ' ' + str;
-        }).join('\n');
+      if (exports.inlineDiffs) {
+        msg += inlineDiff(err, escape);
+      } else {
+        msg += unifiedDiff(err, escape);
       }
-
-      // legend
-      msg = '\n'
-        + color('diff removed', 'actual')
-        + ' '
-        + color('diff added', 'expected')
-        + '\n\n'
-        + msg
-        + '\n';
-
-      // indent
-      msg = msg.replace(/^/gm, '      ');
-
-      fmt = color('error title', '  %s) %s:\n%s')
-        + color('error stack', '\n%s\n');
     }
 
     // indent stack trace without msg
@@ -2066,6 +2164,73 @@ function pad(str, len) {
   return Array(len - str.length + 1).join(' ') + str;
 }
 
+
+/**
+ * Returns an inline diff between 2 strings with coloured ANSI output
+ *
+ * @param {Error} Error with actual/expected
+ * @return {String} Diff
+ * @api private
+ */
+
+function inlineDiff(err, escape) {
+  var msg = errorDiff(err, 'WordsWithSpace', escape);
+
+  // linenos
+  var lines = msg.split('\n');
+  if (lines.length > 4) {
+    var width = String(lines.length).length;
+    msg = lines.map(function(str, i){
+      return pad(++i, width) + ' |' + ' ' + str;
+    }).join('\n');
+  }
+
+  // legend
+  msg = '\n'
+    + color('diff removed', 'actual')
+    + ' '
+    + color('diff added', 'expected')
+    + '\n\n'
+    + msg
+    + '\n';
+
+  // indent
+  msg = msg.replace(/^/gm, '      ');
+  return msg;
+}
+
+/**
+ * Returns a unified diff between 2 strings
+ *
+ * @param {Error} Error with actual/expected
+ * @return {String} Diff
+ * @api private
+ */
+
+function unifiedDiff(err, escape) {
+  var indent = '      ';
+  function cleanUp(line) {
+    if (escape) {
+      line = escapeInvisibles(line);
+    }
+    if (line[0] === '+') return indent + colorLines('diff added', line);
+    if (line[0] === '-') return indent + colorLines('diff removed', line);
+    if (line.match(/\@\@/)) return null;
+    if (line.match(/\\ No newline/)) return null;
+    else return indent + line;
+  }
+  function notBlank(line) {
+    return line != null;
+  }
+  msg = diff.createPatch('string', err.actual, err.expected);
+  var lines = msg.split('\n').splice(4);
+  return '\n      '
+         + colorLines('diff added',   '+ expected') + ' '
+         + colorLines('diff removed', '- actual')
+         + '\n\n'
+         + lines.map(cleanUp).filter(notBlank).join('\n');
+}
+
 /**
  * Return a character diff for `err`.
  *
@@ -2075,17 +2240,26 @@ function pad(str, len) {
  */
 
 function errorDiff(err, type, escape) {
-  return diff['diff' + type](err.actual, err.expected).map(function(str){
-    if (escape) {
-      str.value = str.value
-        .replace(/\t/g, '<tab>')
-        .replace(/\r/g, '<CR>')
-        .replace(/\n/g, '<LF>\n');
-    }
+  var actual   = escape ? escapeInvisibles(err.actual)   : err.actual;
+  var expected = escape ? escapeInvisibles(err.expected) : err.expected;
+  return diff['diff' + type](actual, expected).map(function(str){
     if (str.added) return colorLines('diff added', str.value);
     if (str.removed) return colorLines('diff removed', str.value);
     return str.value;
   }).join('');
+}
+
+/**
+ * Returns a string with all invisible characters in plain text
+ *
+ * @param {String} line
+ * @return {String}
+ * @api private
+ */
+function escapeInvisibles(line) {
+    return line.replace(/\t/g, '<tab>')
+               .replace(/\r/g, '<CR>')
+               .replace(/\n/g, '<LF>\n');
 }
 
 /**
@@ -2130,6 +2304,8 @@ function sameType(a, b) {
   b = Object.prototype.toString.call(b);
   return a == b;
 }
+
+
 
 }); // module: reporters/base.js
 
@@ -2338,7 +2514,7 @@ var Date = global.Date
   , clearInterval = global.clearInterval;
 
 /**
- * Expose `Doc`.
+ * Expose `HTML`.
  */
 
 exports = module.exports = HTML;
@@ -2355,7 +2531,7 @@ var statsTemplate = '<ul id="mocha-stats">'
   + '</ul>';
 
 /**
- * Initialize a new `Doc` reporter.
+ * Initialize a new `HTML` reporter.
  *
  * @param {Runner} runner
  * @api public
@@ -2420,7 +2596,7 @@ function HTML(runner, root) {
     if (suite.root) return;
 
     // suite
-    var url = '?grep=' + encodeURIComponent(suite.fullTitle());
+    var url = self.suiteURL(suite);
     var el = fragment('<li class="suite"><h1><a href="%s">%s</a></h1></li>', url, escape(suite.title));
 
     // container
@@ -2451,7 +2627,8 @@ function HTML(runner, root) {
 
     // test
     if ('passed' == test.state) {
-      var el = fragment('<li class="test pass %e"><h2>%e<span class="duration">%ems</span> <a href="?grep=%e" class="replay">‣</a></h2></li>', test.speed, test.title, test.duration, encodeURIComponent(test.fullTitle()));
+      var url = self.testURL(test);
+      var el = fragment('<li class="test pass %e"><h2>%e<span class="duration">%ems</span> <a href="%s" class="replay">‣</a></h2></li>', test.speed, test.title, test.duration, url);
     } else if (test.pending) {
       var el = fragment('<li class="test pass pending"><h2>%e</h2></li>', test.title);
     } else {
@@ -2495,6 +2672,26 @@ function HTML(runner, root) {
     if (stack[0]) stack[0].appendChild(el);
   });
 }
+
+/**
+ * Provide suite URL
+ *
+ * @param {Object} [suite]
+ */
+
+HTML.prototype.suiteURL = function(suite){
+  return '?grep=' + encodeURIComponent(suite.fullTitle());
+};
+
+/**
+ * Provide test URL
+ *
+ * @param {Object} [test]
+ */
+
+HTML.prototype.testURL = function(test){
+  return '?grep=' + encodeURIComponent(test.fullTitle());
+};
 
 /**
  * Display error `msg`.
@@ -2592,7 +2789,6 @@ exports.Landing = require('./landing');
 exports.JSONCov = require('./json-cov');
 exports.HTMLCov = require('./html-cov');
 exports.JSONStream = require('./json-stream');
-exports.Teamcity = require('./teamcity');
 
 }); // module: reporters/index.js
 
@@ -3740,75 +3936,6 @@ function title(test) {
 
 }); // module: reporters/tap.js
 
-require.register("reporters/teamcity.js", function(module, exports, require){
-
-/**
- * Module dependencies.
- */
-
-var Base = require('./base');
-
-/**
- * Expose `Teamcity`.
- */
-
-exports = module.exports = Teamcity;
-
-/**
- * Initialize a new `Teamcity` reporter.
- *
- * @param {Runner} runner
- * @api public
- */
-
-function Teamcity(runner) {
-  Base.call(this, runner);
-  var stats = this.stats;
-
-  runner.on('start', function() {
-    console.log("##teamcity[testSuiteStarted name='mocha.suite']");
-  });
-
-  runner.on('test', function(test) {
-    console.log("##teamcity[testStarted name='" + escape(test.fullTitle()) + "']");
-  });
-
-  runner.on('fail', function(test, err) {
-    console.log("##teamcity[testFailed name='" + escape(test.fullTitle()) + "' message='" + escape(err.message) + "']");
-  });
-
-  runner.on('pending', function(test) {
-    console.log("##teamcity[testIgnored name='" + escape(test.fullTitle()) + "' message='pending']");
-  });
-
-  runner.on('test end', function(test) {
-    console.log("##teamcity[testFinished name='" + escape(test.fullTitle()) + "' duration='" + test.duration + "']");
-  });
-
-  runner.on('end', function() {
-    console.log("##teamcity[testSuiteFinished name='mocha.suite' duration='" + stats.duration + "']");
-  });
-}
-
-/**
- * Escape the given `str`.
- */
-
-function escape(str) {
-  return str
-    .replace(/\|/g, "||")
-    .replace(/\n/g, "|n")
-    .replace(/\r/g, "|r")
-    .replace(/\[/g, "|[")
-    .replace(/\]/g, "|]")
-    .replace(/\u0085/g, "|x")
-    .replace(/\u2028/g, "|l")
-    .replace(/\u2029/g, "|p")
-    .replace(/'/g, "|'");
-}
-
-}); // module: reporters/teamcity.js
-
 require.register("reporters/xunit.js", function(module, exports, require){
 
 /**
@@ -3847,6 +3974,10 @@ function XUnit(runner) {
   var stats = this.stats
     , tests = []
     , self = this;
+
+  runner.on('pending', function(test){
+    tests.push(test);
+  });
 
   runner.on('pass', function(test){
     tests.push(test);
@@ -4309,9 +4440,7 @@ Runner.prototype.globalProps = function() {
 Runner.prototype.globals = function(arr){
   if (0 == arguments.length) return this._globals;
   debug('globals %j', arr);
-  utils.forEach(arr, function(arr){
-    this._globals.push(arr);
-  }, this);
+  this._globals = this._globals.concat(arr);
   return this;
 };
 
@@ -4329,8 +4458,11 @@ Runner.prototype.checkGlobals = function(test){
   var leaks;
 
   // check length - 2 ('errno' and 'location' globals)
-  if (isNode && 1 == ok.length - globals.length) return
+  if (isNode && 1 == ok.length - globals.length) return;
   else if (2 == ok.length - globals.length) return;
+
+  if(this.prevGlobalsLength == globals.length) return;
+  this.prevGlobalsLength = globals.length;
 
   leaks = filterLeaks(ok, globals);
   this._globals = this._globals.concat(leaks);
@@ -4364,10 +4496,18 @@ Runner.prototype.fail = function(test, err){
 /**
  * Fail the given `hook` with `err`.
  *
- * Hook failures (currently) hard-end due
- * to that fact that a failing hook will
- * surely cause subsequent tests to fail,
- * causing jumbled reporting.
+ * Hook failures work in the following pattern:
+ * - If bail, then exit
+ * - Failed `before` hook skips all tests in a suite and subsuites,
+ *   but jumps to corresponding `after` hook
+ * - Failed `before each` hook skips remaining tests in a
+ *   suite and jumps to corresponding `after each` hook,
+ *   which is run only once
+ * - Failed `after` hook does not alter
+ *   execution order
+ * - Failed `after each` hook skips remaining tests in a
+ *   suite and subsuites, but executes other `after each`
+ *   hooks
  *
  * @param {Hook} hook
  * @param {Error} err
@@ -4376,7 +4516,9 @@ Runner.prototype.fail = function(test, err){
 
 Runner.prototype.failHook = function(hook, err){
   this.fail(hook, err);
-  this.emit('end');
+  if (this.suite.bail()) {
+    this.emit('end');
+  }
 };
 
 /**
@@ -4411,7 +4553,12 @@ Runner.prototype.hook = function(name, fn){
       hook.removeAllListeners('error');
       var testError = hook.error();
       if (testError) self.fail(self.test, testError);
-      if (err) return self.failHook(hook, err);
+      if (err) {
+        self.failHook(hook, err);
+
+        // stop executing hooks, notify callee of hook err
+        return fn(err);
+      }
       self.emit('hook end', hook);
       delete hook.ctx.currentTest;
       next(++i);
@@ -4425,7 +4572,7 @@ Runner.prototype.hook = function(name, fn){
 
 /**
  * Run hook `name` for the given array of `suites`
- * in order, and callback `fn(err)`.
+ * in order, and callback `fn(err, errSuite)`.
  *
  * @param {String} name
  * @param {Array} suites
@@ -4447,8 +4594,9 @@ Runner.prototype.hooks = function(name, suites, fn){
 
     self.hook(name, function(err){
       if (err) {
+        var errSuite = self.suite;
         self.suite = orig;
-        return fn(err);
+        return fn(err, errSuite);
       }
 
       next(suites.pop());
@@ -4536,9 +4684,36 @@ Runner.prototype.runTests = function(suite, fn){
     , tests = suite.tests.slice()
     , test;
 
-  function next(err) {
+
+  function hookErr(err, errSuite, after) {
+    // before/after Each hook for errSuite failed:
+    var orig = self.suite;
+
+    // for failed 'after each' hook start from errSuite parent,
+    // otherwise start from errSuite itself
+    self.suite = after ? errSuite.parent : errSuite;
+
+    if (self.suite) {
+      // call hookUp afterEach
+      self.hookUp('afterEach', function(err2, errSuite2) {
+        self.suite = orig;
+        // some hooks may fail even now
+        if (err2) return hookErr(err2, errSuite2, true);
+        // report error suite
+        fn(errSuite);
+      });
+    } else {
+      // there is no need calling other 'after each' hooks
+      self.suite = orig;
+      fn(errSuite);
+    }
+  }
+
+  function next(err, errSuite) {
     // if we bail after first err
     if (self.failures && suite._bail) return fn();
+
+    if (err) return hookErr(err, errSuite, true);
 
     // next test
     test = tests.shift();
@@ -4560,7 +4735,10 @@ Runner.prototype.runTests = function(suite, fn){
 
     // execute test and hook(s)
     self.emit('test', self.test = test);
-    self.hookDown('beforeEach', function(){
+    self.hookDown('beforeEach', function(err, errSuite){
+
+      if (err) return hookErr(err, errSuite, false);
+
       self.currentRunnable = self.test;
       self.runTest(function(err){
         test = self.test;
@@ -4603,21 +4781,35 @@ Runner.prototype.runSuite = function(suite, fn){
 
   this.emit('suite', this.suite = suite);
 
-  function next() {
+  function next(errSuite) {
+    if (errSuite) {
+      // current suite failed on a hook from errSuite
+      if (errSuite == suite) {
+        // if errSuite is current suite
+        // continue to the next sibling suite
+        return done();
+      } else {
+        // errSuite is among the parents of current suite
+        // stop execution of errSuite and all sub-suites
+        return done(errSuite);
+      }
+    }
+
     var curr = suite.suites[i++];
     if (!curr) return done();
     self.runSuite(curr, next);
   }
 
-  function done() {
+  function done(errSuite) {
     self.suite = suite;
     self.hook('afterAll', function(){
       self.emit('suite end', suite);
-      fn();
+      fn(errSuite);
     });
   }
 
-  this.hook('beforeAll', function(){
+  this.hook('beforeAll', function(err){
+    if (err) return done();
     self.runTests(suite, next);
   });
 };
@@ -4700,10 +4892,21 @@ function filterLeaks(ok, globals) {
   return filter(globals, function(key){
     // Firefox and Chrome exposes iframes as index inside the window object
     if (/^d+/.test(key)) return false;
+
+    // in firefox
+    // if runner runs in an iframe, this iframe's window.getInterface method not init at first
+    // it is assigned in some seconds
+    if (global.navigator && /^getInterface/.test(key)) return false;
+
+    // an iframe could be approached by window[iframeIndex]
+    // in ie6,7,8 and opera, iframeIndex is enumerable, this could cause leak
+    if (global.navigator && /^\d+/.test(key)) return false;
+
+    // Opera and IE expose global variables for HTML element IDs (issue #243)
+    if (/^mocha-/.test(key)) return false;
+
     var matched = filter(ok, function(ok){
       if (~ok.indexOf('*')) return 0 == key.indexOf(ok.split('*')[0]);
-      // Opera and IE expose global variables for HTML element IDs (issue #243)
-      if (/^mocha-/.test(key)) return true;
       return key == ok;
     });
     return matched.length == 0 && (!global.navigator || 'onerror' !== key);
@@ -5366,13 +5569,18 @@ var process = {};
 process.exit = function(status){};
 process.stdout = {};
 
+var uncaughtExceptionHandlers = [];
+
 /**
  * Remove uncaughtException listener.
  */
 
-process.removeListener = function(e){
+process.removeListener = function(e, fn){
   if ('uncaughtException' == e) {
     global.onerror = function() {};
+
+    var indexOfFn = uncaughtExceptionHandlers.indexOf(fn);
+    if (indexOfFn != -1) { uncaughtExceptionHandlers.splice(indexOfFn, 1); }
   }
 };
 
@@ -5385,6 +5593,7 @@ process.on = function(e, fn){
     global.onerror = function(err, url, line){
       fn(new Error(err + ' (' + url + ':' + line + ')'));
     };
+    uncaughtExceptionHandlers.push(fn);
   }
 };
 
@@ -5419,6 +5628,18 @@ Mocha.Runner.immediately = function(callback) {
   if (!immediateTimeout) {
     immediateTimeout = setTimeout(timeslice, 0);
   }
+};
+
+/**
+ * Function to allow assertion libraries to throw errors directly into mocha.
+ * This is useful when running tests in a browser because window.onerror will
+ * only receive the 'message' attribute of the Error.
+ */
+mocha.throwError = function(err) {
+  uncaughtExceptionHandlers.forEach(function (fn) {
+    fn(err);
+  });
+  throw err;
 };
 
 /**
