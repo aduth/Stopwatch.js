@@ -85,12 +85,11 @@
 
     Stopwatch.prototype.start = function() {
       this.startTime = new Date().valueOf();
+      this._updateTickIntervals();
       this.running = true;
       if (!this.started) {
         this.started = true;
         return this.previousElapsed = 0;
-      } else {
-        return this._updateTickIntervals();
       }
     };
 
@@ -103,7 +102,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         tick = _ref[_i];
         if (tick.intervalId != null) {
-          clearCorrectingInterval(+intervalId);
+          clearCorrectingInterval(+tick.intervalId);
         }
       }
       this.running = false;
@@ -174,22 +173,27 @@
         resolution: resolution,
         startTime: new Date().valueOf()
       };
-      return this.tickIntervals.push(tick);
+      this.tickIntervals.push(tick);
+      return tick;
     };
 
     Stopwatch.prototype._updateTickIntervals = function() {
-      var elapsed, intervalId, intervalIds, nextTick, startTicking, ticker, _ref, _results,
-        _this = this;
+      var elapsed, intervalId, intervalIds, nextTick, startTicking, ticker, _ref, _results, _this;
       intervalIds = [];
       _ref = this.tickIntervals;
       for (intervalId in _ref) {
         ticker = _ref[intervalId];
         elapsed = new Date().valueOf() - ticker.startTime;
-        nextTick = Math.abs(ticker.resolution - (elapsed % resolution));
-        startTicking = function() {
-          return _this._startTicking(ticker.callback, ticker.resolution, ticker.startImmediate);
-        };
-        setTimeout(startTicking, nextTick);
+        _this = this;
+        startTicking = (function() {
+          return _this._startTicking(this.callback, this.resolution, this.startImmediate);
+        }).bind(ticker);
+        nextTick = Math.abs(ticker.resolution - (elapsed % ticker.resolution));
+        if (!this.running || nextTick % ticker.resolution === 0) {
+          startTicking();
+        } else {
+          setTimeout(startTicking, nextTick);
+        }
       }
       _results = [];
       for (intervalId in intervalIds) {

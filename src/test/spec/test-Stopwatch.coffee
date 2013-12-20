@@ -79,12 +79,13 @@ describe 'Stopwatch', ->
   describe '#onTick()', ->
     it 'should tick once a second by default', (done) ->
       timer = new Stopwatch()
-      timer.start()
 
       timer.onTick ->
         expect(timer.elapsed()).to.be.within 950, 1050
         timer.stop()
         done()
+
+      timer.start()
 
     it 'should only tick if timer is running', (done) ->
       timer = new Stopwatch()

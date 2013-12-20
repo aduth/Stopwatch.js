@@ -86,12 +86,12 @@
       it('should tick once a second by default', function(done) {
         var timer;
         timer = new Stopwatch();
-        timer.start();
-        return timer.onTick(function() {
+        timer.onTick(function() {
           expect(timer.elapsed()).to.be.within(950, 1050);
           timer.stop();
           return done();
         });
+        return timer.start();
       });
       it('should only tick if timer is running', function(done) {
         var timer, _err;

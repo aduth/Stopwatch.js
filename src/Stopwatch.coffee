@@ -7,17 +7,16 @@ class Stopwatch
 
   start: ->
     @startTime = new Date().valueOf()
+    @_updateTickIntervals()
     @running = true
 
     if !@started
       @started = true
       @previousElapsed = 0
-    else
-      @_updateTickIntervals()
 
   pause: ->
     throw new Error('Timer must be running to pause or stop') unless @running and @started
-    clearCorrectingInterval(+intervalId) for tick in @tickIntervals when tick.intervalId?
+    clearCorrectingInterval(+tick.intervalId) for tick in @tickIntervals when tick.intervalId?
     @running = false
     @previousElapsed = @elapsed()
 
@@ -55,15 +54,20 @@ class Stopwatch
       startTime: new Date().valueOf()
 
     @tickIntervals.push tick
+    tick
 
   _updateTickIntervals: ->
     intervalIds = []
 
     for intervalId, ticker of @tickIntervals
       elapsed = new Date().valueOf() - ticker.startTime
-      nextTick = Math.abs ticker.resolution - (elapsed % resolution)
-      startTicking = => @_startTicking ticker.callback, ticker.resolution, ticker.startImmediate
-      setTimeout startTicking, nextTick
+      _this = @
+      startTicking = (-> _this._startTicking @callback, @resolution, @startImmediate).bind(ticker)
+      nextTick = Math.abs ticker.resolution - (elapsed % ticker.resolution)
+      if not @running or nextTick % ticker.resolution is 0
+        startTicking()
+      else
+        setTimeout startTicking, nextTick
 
     delete @tickIntervals[intervalId] for intervalId of intervalIds
 
