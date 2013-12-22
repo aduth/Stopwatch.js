@@ -30,10 +30,19 @@
       it('should not pause if not running', function() {
         return expect(timer.pause).to["throw"](Error);
       });
-      return it('should no longer be running', function() {
+      it('should no longer be running', function() {
         timer.start();
         timer.pause();
         return expect(timer.running).to.be["false"];
+      });
+      return it('should not reset elapsed when resumed', function() {
+        var _verify;
+        timer.start();
+        _verify = function() {
+          timer.pause();
+          return expect(timer.elapsed()).to.be.above(0);
+        };
+        return setTimeout(_verify, 100);
       });
     });
     describe('#stop()', function() {
