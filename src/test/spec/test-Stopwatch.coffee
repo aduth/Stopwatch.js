@@ -46,6 +46,22 @@ describe 'Stopwatch', ->
 
       setTimeout _verify, 100
 
+    it 'should resume at previously paused elapsed time', (done) ->
+      timer.start()
+      elapsed = 0
+
+      _pause = ->
+        timer.pause()
+        elapsed = timer.elapsed()
+
+      _verify = ->
+        timer.start()
+        expect(timer.elapsed() - elapsed).to.be.within 0, 50
+        done()
+
+      setTimeout _pause, 150
+      setTimeout _verify, 350
+
   describe '#stop()', ->
     it 'should not stop if not running', ->
       timer = new Stopwatch()

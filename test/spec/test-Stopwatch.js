@@ -35,7 +35,7 @@
         timer.pause();
         return expect(timer.running).to.be["false"];
       });
-      return it('should not reset elapsed', function(done) {
+      it('should not reset elapsed', function(done) {
         var _verify;
         timer.start();
         _verify = function() {
@@ -44,6 +44,22 @@
           return done();
         };
         return setTimeout(_verify, 100);
+      });
+      return it('should resume at previously paused elapsed time', function(done) {
+        var elapsed, _pause, _verify;
+        timer.start();
+        elapsed = 0;
+        _pause = function() {
+          timer.pause();
+          return elapsed = timer.elapsed();
+        };
+        _verify = function() {
+          timer.start();
+          expect(timer.elapsed() - elapsed).to.be.within(0, 50);
+          return done();
+        };
+        setTimeout(_pause, 150);
+        return setTimeout(_verify, 350);
       });
     });
     describe('#stop()', function() {
