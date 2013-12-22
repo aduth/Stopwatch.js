@@ -18,11 +18,11 @@ class Stopwatch
     clearCorrectingInterval(+tick.intervalId) for tick in @tickIntervals when tick.intervalId?
     @running = false
     @previousElapsed = @elapsed()
+    @startTime = null
 
   stop: ->
     @pause()
     @tickIntervals = []
-    @startTime = undefined
     @previousElapsed = 0
     @started = false
 

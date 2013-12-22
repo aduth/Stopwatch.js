@@ -105,13 +105,13 @@
         }
       }
       this.running = false;
-      return this.previousElapsed = this.elapsed();
+      this.previousElapsed = this.elapsed();
+      return this.startTime = null;
     };
 
     Stopwatch.prototype.stop = function() {
       this.pause();
       this.tickIntervals = [];
-      this.startTime = void 0;
       this.previousElapsed = 0;
       return this.started = false;
     };
