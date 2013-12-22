@@ -35,12 +35,13 @@
         timer.pause();
         return expect(timer.running).to.be["false"];
       });
-      return it('should not reset elapsed', function() {
+      return it('should not reset elapsed', function(done) {
         var _verify;
         timer.start();
         _verify = function() {
           timer.pause();
-          return expect(timer.elapsed()).to.be.above(0);
+          expect(timer.elapsed()).to.be.above(0);
+          return done();
         };
         return setTimeout(_verify, 100);
       });
@@ -78,13 +79,14 @@
         };
         return setTimeout(_checkExpected, 51);
       });
-      return it('should reset elapsed', function() {
+      return it('should reset elapsed', function(done) {
         var timer, _verify;
         timer = new Stopwatch();
         timer.start();
         _verify = function() {
           timer.stop();
-          return expect(timer.elapsed()).to.equal(0);
+          expect(timer.elapsed()).to.equal(0);
+          return done();
         };
         return setTimeout(_verify, 100);
       });
