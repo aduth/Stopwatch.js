@@ -12,7 +12,6 @@ class Stopwatch
 
     if !@started
       @started = true
-      @previousElapsed = 0
 
   pause: ->
     throw new Error('Timer must be running to pause or stop') unless @running and @started
@@ -23,6 +22,8 @@ class Stopwatch
   stop: ->
     @pause()
     @tickIntervals = []
+    @startTime = undefined
+    @previousElapsed = 0
     @started = false
 
   elapsed: ->

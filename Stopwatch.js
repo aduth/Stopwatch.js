@@ -88,8 +88,7 @@
       this._updateTickIntervals();
       this.running = true;
       if (!this.started) {
-        this.started = true;
-        return this.previousElapsed = 0;
+        return this.started = true;
       }
     };
 
@@ -112,6 +111,8 @@
     Stopwatch.prototype.stop = function() {
       this.pause();
       this.tickIntervals = [];
+      this.startTime = void 0;
+      this.previousElapsed = 0;
       return this.started = false;
     };
 

@@ -35,7 +35,7 @@
         timer.pause();
         return expect(timer.running).to.be["false"];
       });
-      return it('should not reset elapsed when resumed', function() {
+      return it('should not reset elapsed', function() {
         var _verify;
         timer.start();
         _verify = function() {
@@ -65,7 +65,7 @@
         timer.stop();
         return expect(timer.started).to.be["false"];
       });
-      return it('should re-initialize when re-started', function(done) {
+      it('should re-initialize when re-started', function(done) {
         var timer, _checkExpected;
         timer = new Stopwatch();
         timer.start();
@@ -77,6 +77,16 @@
           return done();
         };
         return setTimeout(_checkExpected, 51);
+      });
+      return it('should reset elapsed', function() {
+        var timer, _verify;
+        timer = new Stopwatch();
+        timer.start();
+        _verify = function() {
+          timer.stop();
+          return expect(timer.elapsed()).to.equal(0);
+        };
+        return setTimeout(_verify, 100);
       });
     });
     describe('#elapsed()', function() {

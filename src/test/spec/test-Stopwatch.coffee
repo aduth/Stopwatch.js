@@ -36,7 +36,7 @@ describe 'Stopwatch', ->
       timer.pause()
       expect(timer.running).to.be.false
 
-    it 'should not reset elapsed when resumed', ->
+    it 'should not reset elapsed', ->
       timer.start()
 
       _verify = ->
@@ -74,6 +74,16 @@ describe 'Stopwatch', ->
         done()
 
       setTimeout _checkExpected, 51
+
+    it 'should reset elapsed', ->
+      timer = new Stopwatch()
+      timer.start()
+
+      _verify = ->
+        timer.stop()
+        expect(timer.elapsed()).to.equal 0
+
+      setTimeout _verify, 100
 
   describe '#elapsed()', ->
     it 'should keep track of time', (done) ->
