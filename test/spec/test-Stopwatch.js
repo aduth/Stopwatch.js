@@ -119,7 +119,7 @@
         return setTimeout(_checkExpected, 1000);
       });
     });
-    return describe('#onTick()', function() {
+    describe('#onTick()', function() {
       it('should tick once a second by default', function(done) {
         var timer;
         timer = new Stopwatch();
@@ -159,6 +159,19 @@
           return _checkDone();
         });
         return timer.start();
+      });
+    });
+    return describe('#toString()', function() {
+      it('should return value in hh:mm:ss.sss format', function() {
+        var timer;
+        timer = new Stopwatch();
+        return expect('' + timer).to.match(/^\d{2}:\d{2}:\d{2}\.\d{3}$/);
+      });
+      return it('should return a string representing the current elapsed time', function() {
+        var timer;
+        timer = new Stopwatch();
+        timer.previousElapsed = 671000;
+        return expect('' + timer).to.match(/^00:11:11\.\d{3}$/);
       });
     });
   });

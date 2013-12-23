@@ -43,6 +43,20 @@ class Stopwatch
       startTicking = => @_startTicking callback, resolution, startImmediate
       setTimeout startTicking, nextTick
 
+  toString: ->
+    duration = @elapsed()
+    ms = duration % 1000
+    duration = (duration - ms) / 1000
+    sec = duration % 60
+    duration = (duration - sec) / 60;
+    min = duration % 60
+    hr = (duration - min) / 60
+
+    return ('0' + hr).slice(-2) + ':' +
+      ('0' + min).slice(-2) + ':' +
+      ('0' + sec).slice(-2) + '.' +
+      ('00' + ms).slice(-3)
+
   _startTicking: (callback, resolution, startImmediate) ->
     tick = @_setTick callback, resolution, startImmediate
     tick.intervalId = setCorrectingInterval callback, resolution

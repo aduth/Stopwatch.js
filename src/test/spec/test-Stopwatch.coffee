@@ -150,3 +150,13 @@ describe 'Stopwatch', ->
 
       timer.start()
 
+  describe '#toString()', ->
+    it 'should return value in hh:mm:ss.sss format', ->
+      timer = new Stopwatch()
+      expect('' + timer).to.match /^\d{2}:\d{2}:\d{2}\.\d{3}$/
+
+    it 'should return a string representing the current elapsed time', ->
+      timer = new Stopwatch()
+      timer.previousElapsed = 671000 # 11min 11sec
+      expect('' + timer).to.match /^00:11:11\.\d{3}$/
+
