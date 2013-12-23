@@ -179,7 +179,7 @@
     };
 
     Stopwatch.prototype._updateTickIntervals = function() {
-      var elapsed, intervalId, intervalIds, nextTick, startTicking, ticker, _ref, _results, _this;
+      var elapsed, intervalId, intervalIds, nextTick, startTicking, ticker, _ref, _this;
       intervalIds = [];
       _ref = this.tickIntervals;
       for (intervalId in _ref) {
@@ -191,16 +191,12 @@
         }).bind(ticker);
         nextTick = Math.abs(ticker.resolution - (elapsed % ticker.resolution));
         if (!this.running || nextTick % ticker.resolution === 0) {
-          startTicking();
+          setTimeout(startTicking, 0);
         } else {
           setTimeout(startTicking, nextTick);
         }
       }
-      _results = [];
-      for (intervalId in intervalIds) {
-        _results.push(delete this.tickIntervals[intervalId]);
-      }
-      return _results;
+      return this.tickIntervals = [];
     };
 
     return Stopwatch;

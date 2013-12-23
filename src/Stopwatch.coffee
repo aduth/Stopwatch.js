@@ -80,11 +80,11 @@ class Stopwatch
       startTicking = (-> _this._startTicking @callback, @resolution, @startImmediate).bind(ticker)
       nextTick = Math.abs ticker.resolution - (elapsed % ticker.resolution)
       if not @running or nextTick % ticker.resolution is 0
-        startTicking()
+        setTimeout startTicking, 0
       else
         setTimeout startTicking, nextTick
 
-    delete @tickIntervals[intervalId] for intervalId of intervalIds
+    @tickIntervals = []
 
 @Stopwatch = Stopwatch
 module.exports = Stopwatch if module?.exports?
