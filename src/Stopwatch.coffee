@@ -14,15 +14,13 @@ class Stopwatch
       @started = true
 
   pause: ->
-    throw new Error('Timer must be running to pause or stop') unless @running and @started
     clearCorrectingInterval(+tick.intervalId) for tick in @tickIntervals when tick.intervalId?
     @running = false
     @previousElapsed = @elapsed()
     @startTime = null
 
   stop: ->
-    @pause()
-    @tickIntervals = []
+    @pause() if @running
     @previousElapsed = 0
     @started = false
 

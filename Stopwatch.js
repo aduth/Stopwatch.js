@@ -94,9 +94,6 @@
 
     Stopwatch.prototype.pause = function() {
       var tick, _i, _len, _ref;
-      if (!(this.running && this.started)) {
-        throw new Error('Timer must be running to pause or stop');
-      }
       _ref = this.tickIntervals;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         tick = _ref[_i];
@@ -110,8 +107,9 @@
     };
 
     Stopwatch.prototype.stop = function() {
-      this.pause();
-      this.tickIntervals = [];
+      if (this.running) {
+        this.pause();
+      }
       this.previousElapsed = 0;
       return this.started = false;
     };

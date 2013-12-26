@@ -95,11 +95,23 @@
         };
         return setTimeout(_checkExpected, 51);
       });
-      return it('should reset elapsed', function(done) {
+      it('should reset elapsed', function(done) {
         var timer, _verify;
         timer = new Stopwatch();
         timer.start();
         _verify = function() {
+          timer.stop();
+          expect(timer.elapsed()).to.equal(0);
+          return done();
+        };
+        return setTimeout(_verify, 100);
+      });
+      return it('should be permitted during a pause', function(done) {
+        var timer, _verify;
+        timer = new Stopwatch();
+        timer.start();
+        _verify = function() {
+          timer.pause();
           timer.stop();
           expect(timer.elapsed()).to.equal(0);
           return done();

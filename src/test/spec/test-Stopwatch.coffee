@@ -103,6 +103,18 @@ describe 'Stopwatch', ->
 
       setTimeout _verify, 100
 
+    it 'should be permitted during a pause', (done) ->
+      timer = new Stopwatch()
+      timer.start()
+
+      _verify = ->
+        timer.pause()
+        timer.stop()
+        expect(timer.elapsed()).to.equal 0
+        done()
+
+      setTimeout _verify, 100
+
   describe '#elapsed()', ->
     it 'should keep track of time', (done) ->
       timer = new Stopwatch()
