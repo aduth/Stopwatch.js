@@ -28,9 +28,6 @@ describe 'Stopwatch', ->
     beforeEach ->
       timer = new Stopwatch()
 
-    it 'should not pause if not running', ->
-      expect(timer.pause).to.throw Error
-
     it 'should no longer be running', ->
       timer.start()
       timer.pause()
@@ -63,10 +60,6 @@ describe 'Stopwatch', ->
       setTimeout _verify, 350
 
   describe '#stop()', ->
-    it 'should not stop if not running', ->
-      timer = new Stopwatch()
-      expect(timer.stop).to.throw(Error)
-
     it 'should no longer be running', ->
       timer = new Stopwatch()
       timer.start()

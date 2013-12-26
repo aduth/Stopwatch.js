@@ -27,9 +27,6 @@
       timer = beforeEach(function() {
         return timer = new Stopwatch();
       });
-      it('should not pause if not running', function() {
-        return expect(timer.pause).to["throw"](Error);
-      });
       it('should no longer be running', function() {
         timer.start();
         timer.pause();
@@ -63,11 +60,6 @@
       });
     });
     describe('#stop()', function() {
-      it('should not stop if not running', function() {
-        var timer;
-        timer = new Stopwatch();
-        return expect(timer.stop).to["throw"](Error);
-      });
       it('should no longer be running', function() {
         var timer;
         timer = new Stopwatch();

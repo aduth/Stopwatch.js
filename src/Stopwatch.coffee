@@ -14,6 +14,7 @@ class Stopwatch
       @started = true
 
   pause: ->
+    return unless @running
     clearCorrectingInterval(+tick.intervalId) for tick in @tickIntervals when tick.intervalId?
     @running = false
     @previousElapsed = @elapsed()

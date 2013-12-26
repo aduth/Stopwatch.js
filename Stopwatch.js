@@ -94,6 +94,9 @@
 
     Stopwatch.prototype.pause = function() {
       var tick, _i, _len, _ref;
+      if (!this.running) {
+        return;
+      }
       _ref = this.tickIntervals;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         tick = _ref[_i];
