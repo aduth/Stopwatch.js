@@ -17,7 +17,7 @@ class Stopwatch
     return unless @running
     clearCorrectingInterval(+tick.intervalId) for tick in @tickIntervals when tick.intervalId?
     @running = false
-    @previousElapsed = @elapsed()
+    @previousElapsed = @getElapsed()
     @startTime = null
 
   stop: ->
@@ -25,7 +25,7 @@ class Stopwatch
     @previousElapsed = 0
     @started = false
 
-  elapsed: ->
+  getElapsed: ->
     now = new Date().valueOf()
     startTime = @startTime or now
     return now - startTime + @previousElapsed
@@ -35,15 +35,15 @@ class Stopwatch
 
     unless @running
       @_setTick callback, resolution, true
-    else if startImmediate or @elapsed() is 0
+    else if startImmediate or @getElapsed() is 0
       @_startTicking callback, resolution, true
     else
-      nextTick = resolution - (@elapsed() % resolution)
+      nextTick = resolution - (@getElapsed() % resolution)
       startTicking = => @_startTicking callback, resolution, startImmediate
       setTimeout startTicking, nextTick
 
   toString: ->
-    duration = @elapsed()
+    duration = @getElapsed()
     ms = duration % 1000
     duration = (duration - ms) / 1000
     sec = duration % 60

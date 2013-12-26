@@ -37,7 +37,7 @@
         timer.start();
         _verify = function() {
           timer.pause();
-          expect(timer.elapsed()).to.be.above(0);
+          expect(timer.getElapsed()).to.be.above(0);
           return done();
         };
         return setTimeout(_verify, 100);
@@ -48,11 +48,11 @@
         elapsed = 0;
         _pause = function() {
           timer.pause();
-          return elapsed = timer.elapsed();
+          return elapsed = timer.getElapsed();
         };
         _verify = function() {
           timer.start();
-          expect(timer.elapsed() - elapsed).to.be.within(0, 50);
+          expect(timer.getElapsed() - elapsed).to.be.within(0, 50);
           return done();
         };
         setTimeout(_pause, 150);
@@ -93,7 +93,7 @@
         timer.start();
         _verify = function() {
           timer.stop();
-          expect(timer.elapsed()).to.equal(0);
+          expect(timer.getElapsed()).to.equal(0);
           return done();
         };
         return setTimeout(_verify, 100);
@@ -105,19 +105,19 @@
         _verify = function() {
           timer.pause();
           timer.stop();
-          expect(timer.elapsed()).to.equal(0);
+          expect(timer.getElapsed()).to.equal(0);
           return done();
         };
         return setTimeout(_verify, 100);
       });
     });
-    describe('#elapsed()', function() {
+    describe('#getElapsed()', function() {
       return it('should keep track of time', function(done) {
         var timer, _checkExpected;
         timer = new Stopwatch();
         timer.start();
         _checkExpected = function() {
-          expect(timer.elapsed()).to.be.within(950, 1050);
+          expect(timer.getElapsed()).to.be.within(950, 1050);
           return done();
         };
         return setTimeout(_checkExpected, 1000);
@@ -128,7 +128,7 @@
         var timer;
         timer = new Stopwatch();
         timer.onTick(function() {
-          expect(timer.elapsed()).to.be.within(950, 1050);
+          expect(timer.getElapsed()).to.be.within(950, 1050);
           timer.stop();
           return done();
         });

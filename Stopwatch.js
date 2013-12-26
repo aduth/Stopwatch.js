@@ -105,7 +105,7 @@
         }
       }
       this.running = false;
-      this.previousElapsed = this.elapsed();
+      this.previousElapsed = this.getElapsed();
       return this.startTime = null;
     };
 
@@ -117,7 +117,7 @@
       return this.started = false;
     };
 
-    Stopwatch.prototype.elapsed = function() {
+    Stopwatch.prototype.getElapsed = function() {
       var now, startTime;
       now = new Date().valueOf();
       startTime = this.startTime || now;
@@ -138,10 +138,10 @@
       }
       if (!this.running) {
         return this._setTick(callback, resolution, true);
-      } else if (startImmediate || this.elapsed() === 0) {
+      } else if (startImmediate || this.getElapsed() === 0) {
         return this._startTicking(callback, resolution, true);
       } else {
-        nextTick = resolution - (this.elapsed() % resolution);
+        nextTick = resolution - (this.getElapsed() % resolution);
         startTicking = function() {
           return _this._startTicking(callback, resolution, startImmediate);
         };
@@ -151,7 +151,7 @@
 
     Stopwatch.prototype.toString = function() {
       var duration, hr, min, ms, sec;
-      duration = this.elapsed();
+      duration = this.getElapsed();
       ms = duration % 1000;
       duration = (duration - ms) / 1000;
       sec = duration % 60;

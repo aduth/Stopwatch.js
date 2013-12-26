@@ -38,7 +38,7 @@ describe 'Stopwatch', ->
 
       _verify = ->
         timer.pause()
-        expect(timer.elapsed()).to.be.above 0
+        expect(timer.getElapsed()).to.be.above 0
         done()
 
       setTimeout _verify, 100
@@ -49,11 +49,11 @@ describe 'Stopwatch', ->
 
       _pause = ->
         timer.pause()
-        elapsed = timer.elapsed()
+        elapsed = timer.getElapsed()
 
       _verify = ->
         timer.start()
-        expect(timer.elapsed() - elapsed).to.be.within 0, 50
+        expect(timer.getElapsed() - elapsed).to.be.within 0, 50
         done()
 
       setTimeout _pause, 150
@@ -91,7 +91,7 @@ describe 'Stopwatch', ->
 
       _verify = ->
         timer.stop()
-        expect(timer.elapsed()).to.equal 0
+        expect(timer.getElapsed()).to.equal 0
         done()
 
       setTimeout _verify, 100
@@ -103,17 +103,17 @@ describe 'Stopwatch', ->
       _verify = ->
         timer.pause()
         timer.stop()
-        expect(timer.elapsed()).to.equal 0
+        expect(timer.getElapsed()).to.equal 0
         done()
 
       setTimeout _verify, 100
 
-  describe '#elapsed()', ->
+  describe '#getElapsed()', ->
     it 'should keep track of time', (done) ->
       timer = new Stopwatch()
       timer.start()
       _checkExpected = ->
-        expect(timer.elapsed()).to.be.within 950, 1050
+        expect(timer.getElapsed()).to.be.within 950, 1050
         done()
 
       setTimeout _checkExpected, 1000
@@ -123,7 +123,7 @@ describe 'Stopwatch', ->
       timer = new Stopwatch()
 
       timer.onTick ->
-        expect(timer.elapsed()).to.be.within 950, 1050
+        expect(timer.getElapsed()).to.be.within 950, 1050
         timer.stop()
         done()
 
