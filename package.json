@@ -8,7 +8,7 @@
     "url": "http://www.andrewduthie.com"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "node -e \"require('grunt').tasks('test');\""
   },
   "license": "MIT",
   "devDependencies": {
