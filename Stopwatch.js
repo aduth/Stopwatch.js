@@ -87,9 +87,7 @@
       this.startTime = new Date().valueOf();
       this._updateTickIntervals();
       this.running = true;
-      if (!this.started) {
-        return this.started = true;
-      }
+      return this.started = true;
     };
 
     Stopwatch.prototype.pause = function() {

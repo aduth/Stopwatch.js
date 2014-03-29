@@ -9,9 +9,7 @@ class Stopwatch
     @startTime = new Date().valueOf()
     @_updateTickIntervals()
     @running = true
-
-    if !@started
-      @started = true
+    @started = true
 
   pause: ->
     return unless @running
