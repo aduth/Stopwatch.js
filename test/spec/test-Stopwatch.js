@@ -18,8 +18,17 @@
         expect(timer.running).to["true"];
         return expect(timer.startTime).to.be.a('number');
       });
-      return it('should be keeping track of time', function() {
+      it('should be keeping track of time', function() {
         return expect(Math.abs(timer.startTime - now)).to.be.within(0, 50);
+      });
+      return it('should be idempotent while already started', function(done) {
+        var _verify;
+        _verify = function() {
+          timer.start();
+          expect(Math.abs(timer.startTime - now)).to.be.within(0, 50);
+          return done();
+        };
+        return setTimeout(_verify, 100);
       });
     });
     describe('#pause()', function() {

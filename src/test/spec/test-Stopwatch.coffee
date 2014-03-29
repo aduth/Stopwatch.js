@@ -22,6 +22,14 @@ describe 'Stopwatch', ->
     it 'should be keeping track of time', ->
       expect(Math.abs(timer.startTime - now)).to.be.within 0, 50
 
+    it 'should be idempotent while already started', (done) ->
+      _verify = ->
+        timer.start()
+        expect(Math.abs(timer.startTime - now)).to.be.within 0, 50
+        done()
+
+      setTimeout _verify, 100
+
   describe '#pause()', ->
     timer =
 
