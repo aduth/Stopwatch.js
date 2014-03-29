@@ -1,4 +1,4 @@
-/*! Stopwatch.js 1.0.0 | (c) 2013 Andrew Duthie <andrew@andrewduthie.com> | MIT License */
+/*! Stopwatch.js 1.0.0 | (c) 2014 Andrew Duthie <andrew@andrewduthie.com> | MIT License */
 /*! correcting-interval 1.0.3 | Copyright 2013 Andrew Duthie | MIT License */
 ;(function(global, factory) {
   // Use UMD pattern to expose exported functions
