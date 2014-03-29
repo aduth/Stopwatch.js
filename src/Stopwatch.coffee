@@ -38,7 +38,7 @@ class Stopwatch
       @_startTicking callback, resolution, true
     else
       nextTick = resolution - (@getElapsed() % resolution)
-      startTicking = => @_startTicking callback, resolution, startImmediate
+      startTicking = => @_startTicking callback, resolution
       setTimeout startTicking, nextTick
 
   toString: ->
@@ -55,17 +55,12 @@ class Stopwatch
       ('0' + sec).slice(-2) + '.' +
       ('00' + ms).slice(-3)
 
-  _startTicking: (callback, resolution, startImmediate) ->
-    tick = @_setTick callback, resolution, startImmediate
+  _startTicking: (callback, resolution) ->
+    tick = @_setTick callback, resolution
     tick.intervalId = setCorrectingInterval callback, resolution
 
-  _setTick: (callback, resolution, startImmediate) ->
-    tick =
-      callback: callback
-      immediate: startImmediate
-      resolution: resolution
-      startTime: new Date().valueOf()
-
+  _setTick: (callback, resolution) ->
+    tick = new TickInterval callback, resolution, new Date().valueOf()
     @tickIntervals.push tick
     tick
 
@@ -73,16 +68,23 @@ class Stopwatch
     intervalIds = []
 
     for intervalId, ticker of @tickIntervals
-      elapsed = new Date().valueOf() - ticker.startTime
+      # Create bound context to retain ticker when setTimeout resolves
       _this = @
-      startTicking = (-> _this._startTicking @callback, @resolution, @startImmediate).bind(ticker)
+      startTicking = (-> _this._startTicking @callback, @resolution).bind(ticker)
+
+      # Calculate time until next tick, whereupon the timer should begin ticking
+      elapsed = new Date().valueOf() - ticker.startTime
       nextTick = Math.abs ticker.resolution - (elapsed % ticker.resolution)
+
       if not @running or nextTick % ticker.resolution is 0
         setTimeout startTicking, 0
       else
         setTimeout startTicking, nextTick
 
     @tickIntervals = []
+
+class TickInterval
+  constructor: (@callback, @resolution, @startTime) ->
 
 @Stopwatch = Stopwatch
 module.exports = Stopwatch if module?.exports?

@@ -73,7 +73,7 @@
   };
 }));
 (function() {
-  var Stopwatch;
+  var Stopwatch, TickInterval;
 
   Stopwatch = (function() {
     function Stopwatch() {
@@ -144,7 +144,7 @@
       } else {
         nextTick = resolution - (this.getElapsed() % resolution);
         startTicking = function() {
-          return _this._startTicking(callback, resolution, startImmediate);
+          return _this._startTicking(callback, resolution);
         };
         return setTimeout(startTicking, nextTick);
       }
@@ -162,20 +162,15 @@
       return ('0' + hr).slice(-2) + ':' + ('0' + min).slice(-2) + ':' + ('0' + sec).slice(-2) + '.' + ('00' + ms).slice(-3);
     };
 
-    Stopwatch.prototype._startTicking = function(callback, resolution, startImmediate) {
+    Stopwatch.prototype._startTicking = function(callback, resolution) {
       var tick;
-      tick = this._setTick(callback, resolution, startImmediate);
+      tick = this._setTick(callback, resolution);
       return tick.intervalId = setCorrectingInterval(callback, resolution);
     };
 
-    Stopwatch.prototype._setTick = function(callback, resolution, startImmediate) {
+    Stopwatch.prototype._setTick = function(callback, resolution) {
       var tick;
-      tick = {
-        callback: callback,
-        immediate: startImmediate,
-        resolution: resolution,
-        startTime: new Date().valueOf()
-      };
+      tick = new TickInterval(callback, resolution, new Date().valueOf());
       this.tickIntervals.push(tick);
       return tick;
     };
@@ -186,11 +181,11 @@
       _ref = this.tickIntervals;
       for (intervalId in _ref) {
         ticker = _ref[intervalId];
-        elapsed = new Date().valueOf() - ticker.startTime;
         _this = this;
         startTicking = (function() {
-          return _this._startTicking(this.callback, this.resolution, this.startImmediate);
+          return _this._startTicking(this.callback, this.resolution);
         }).bind(ticker);
+        elapsed = new Date().valueOf() - ticker.startTime;
         nextTick = Math.abs(ticker.resolution - (elapsed % ticker.resolution));
         if (!this.running || nextTick % ticker.resolution === 0) {
           setTimeout(startTicking, 0);
@@ -202,6 +197,17 @@
     };
 
     return Stopwatch;
+
+  })();
+
+  TickInterval = (function() {
+    function TickInterval(callback, resolution, startTime) {
+      this.callback = callback;
+      this.resolution = resolution;
+      this.startTime = startTime;
+    }
+
+    return TickInterval;
 
   })();
 
