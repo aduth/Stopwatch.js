@@ -84,6 +84,9 @@
     }
 
     Stopwatch.prototype.start = function() {
+      if (this.running) {
+        return;
+      }
       this.startTime = new Date().valueOf();
       this._updateTickIntervals();
       this.running = true;

@@ -6,6 +6,7 @@ class Stopwatch
     @previousElapsed = 0
 
   start: ->
+    return if @running
     @startTime = new Date().valueOf()
     @_updateTickIntervals()
     @running = true
