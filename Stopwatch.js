@@ -1,5 +1,7 @@
 /*! Stopwatch.js 1.0.0 | (c) 2014 Andrew Duthie <andrew@andrewduthie.com> | MIT License */
-/*! correcting-interval 1.0.3 | Copyright 2013 Andrew Duthie | MIT License */
+/*! correcting-interval 1.0.3 | Copyright 2014 Andrew Duthie | MIT License */
+/* jshint evil: true */
+
 ;(function(global, factory) {
   // Use UMD pattern to expose exported functions
   if (typeof exports === 'object') {
@@ -35,7 +37,11 @@
     var tick = function(func, delay) {
       if (!instance.started) {
         // On first call, save instance settings
-        instance.func = func;
+        if (typeof func === 'string') {
+          // Convert string to function
+          func = function() { eval(this.func); }.bind({ func: func });
+        }
+        instance.func = func instanceof Function ? func : (function() { });
         instance.delay = delay;
         instance.startTime = now();
         instance.target = delay;
@@ -62,6 +68,8 @@
   };
 
   var clearCorrectingInterval = function(intervalId) {
+    if (!correctingIntervals[intervalId]) return;
+
     // Clear existing timeout and remove from global running intervals
     clearTimeout(correctingIntervals[intervalId].intervalId);
     correctingIntervals[intervalId] = null;
