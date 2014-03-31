@@ -4,7 +4,7 @@ Stopwatch.js is a JavaScript utility that mimics the functions of a common stopw
 
 Stopwatch.js runs in the browser and on the server using Node.js.
 
-[Demonstration](http://www.andrewduthie.com/demo/stopwatch/)
+[Demonstration](http://aduth.github.io/Stopwatch.js/)
 
 ## Installation
 
