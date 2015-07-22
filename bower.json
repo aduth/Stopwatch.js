@@ -1,0 +1,27 @@
+{
+  "name": "stopwatch",
+  "main": "Stopwatch.js",
+  "version": "1.0.0",
+  "homepage": "https://github.com/aduth/Stopwatch.js",
+  "authors": [
+    "Andrew Duthie <andrew@andrewduthie.com>"
+  ],
+  "description": "A minimal cross-platform stopwatch",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "stopwatch",
+    "timer",
+    "timing"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ]
+}
